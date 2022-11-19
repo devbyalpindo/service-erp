@@ -17,7 +17,7 @@ var config_env = map[string]map[string]string{
 		"PORT":    "8000",
 		"PQS_URL": "http://127.0.0.1:8000",
 
-		"MYSQL_HOST":   "localhost",
+		"MYSQL_HOST":   "mysql",
 		"MYSQL_PORT":   "3306",
 		"MYSQL_USER":   "root",
 		"MYSQL_PASS":   "",
