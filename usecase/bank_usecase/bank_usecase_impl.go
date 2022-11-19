@@ -113,7 +113,7 @@ func (usecase *BankUsecaseImpl) UpdateBank(id string, body dto.BankUpdate) dto.R
 					Messsage: helper.MessageError(fe.Tag()),
 				}
 			}
-			return helper.ResponseError("failed", out, 403)
+			return helper.ResponseError("failed", out, 400)
 		}
 
 	}
@@ -152,7 +152,7 @@ func (usecase *BankUsecaseImpl) UpdateBankBalance(body dto.BankUpdateBalance) dt
 					Messsage: helper.MessageError(fe.Tag()),
 				}
 			}
-			return helper.ResponseError("failed", out, 403)
+			return helper.ResponseError("failed", out, 400)
 		}
 
 	}

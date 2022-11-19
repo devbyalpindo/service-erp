@@ -8,5 +8,6 @@ type UserRepository interface {
 	GetAllRole() ([]entity.Role, error)
 	LoginUsers(username string) (*entity.User, error)
 	GetRoleById(id string) (*entity.Role, error)
+	CheckExistUser(username string) bool
 	GetUserDetail(id string) (*entity.User, *entity.Role, error)
 }

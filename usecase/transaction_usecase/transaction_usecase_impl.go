@@ -47,7 +47,7 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 					Messsage: helper.MessageError(fe.Tag()),
 				}
 			}
-			return helper.ResponseError("failed", out, 403)
+			return helper.ResponseError("failed", out, 400)
 		}
 
 	}

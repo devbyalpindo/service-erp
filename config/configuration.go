@@ -17,10 +17,10 @@ var config_env = map[string]map[string]string{
 		"PORT":    "8000",
 		"PQS_URL": "http://127.0.0.1:8000",
 
-		"MYSQL_HOST":   "mysql",
+		"MYSQL_HOST":   "localhost",
 		"MYSQL_PORT":   "3306",
 		"MYSQL_USER":   "root",
-		"MYSQL_PASS":   "Jakarta@22",
+		"MYSQL_PASS":   "",
 		"MYSQL_SCHEMA": "erp_salju",
 
 		"TOKEN_KEY": "ftr$;C3Uck=2AH/xe(q;}Ak=#%2#@M?BNTrKPP[+zyP.B@G25@%L#AUQ}cvM[ZJ(7}hCNF;qrc$zPz?TB$YT+;BMK6!,SV?PzYXKUvG{:B-XKtL)(awL3ic$AjSzmq9bZ(3WTYrU_V8q*prA._pm;iv_=.FiD+LH+!&U-tpa}/ZzQ:RQ?U?uy75j6v*m[.!t$9UccH+j",

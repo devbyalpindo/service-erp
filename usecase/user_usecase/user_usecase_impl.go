@@ -41,24 +41,33 @@ func (usecase *UserUsecaseImpl) AddUser(body dto.UserAdd) dto.Response {
 					Messsage: helper.MessageError(fe.Tag()),
 				}
 			}
-			return helper.ResponseError("failed", out, 403)
+			return helper.ResponseError("failed", out, 400)
 		}
 
+	}
+
+	checkUser := usecase.UserRepository.CheckExistUser(body.Username)
+
+	if !checkUser {
+		return helper.ResponseError("failed", "Username telah terdaftar", 400)
+	}
+
+	checkRole, err := usecase.UserRepository.GetRoleById(body.RoleID)
+
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", "Role tidak ditemukan", 404)
 	}
 
 	createID := uuid.New().String()
 	encryptPwd, err := helper.HashPassword(body.Password)
 	helper.PanicIfError(err)
 
-	// role, err := usecase.UserRepository.GetRoleIDByName("viewer")
-	// helper.PanicIfError(err)
-
 	payloadUser := &entity.User{
 		UserID:      createID,
 		Username:    body.Username,
 		Password:    encryptPwd,
 		PhoneNumber: body.PhoneNumber,
-		RoleID:      body.RoleID,
+		RoleID:      checkRole.RoleID,
 		CreatedAt:   time.Now().Format("2006-01-02 15:04:05"),
 		UpdatedAt:   time.Now().Format("2006-01-02 15:04:05"),
 	}

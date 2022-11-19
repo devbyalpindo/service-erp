@@ -6,6 +6,7 @@ import (
 	"erp-service/delivery/bank_delivery"
 	"erp-service/delivery/coin_delivery"
 	"erp-service/delivery/transaction_delivery"
+	"erp-service/delivery/type_transaction_delivery"
 	"erp-service/delivery/user_delivery"
 	"erp-service/middleware"
 	"erp-service/repository/activity_log_repository"
@@ -19,6 +20,7 @@ import (
 	"erp-service/usecase/coin_usecase"
 	"erp-service/usecase/jwt_usecase"
 	"erp-service/usecase/transaction_usecase"
+	"erp-service/usecase/type_transaction_usecase"
 	"erp-service/usecase/user_usecase"
 	"log"
 	"strconv"
@@ -55,6 +57,8 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 
 	trxRepository := transaction_repository.NewTransactionRepository(mysqlConn)
 	typeRepository := type_repository.NewTypeRepository(mysqlConn)
+	typeUsecase := type_transaction_usecase.NewTypeTransactionUsecase(typeRepository)
+	typeDelivery := type_transaction_delivery.NewTypeTransactionDelivery(typeUsecase)
 	trxUsecase := transaction_usecase.NewTransactionUsecase(trxRepository, coinRepository, bankRepository, typeRepository, validate)
 	trxDelivery := transaction_delivery.NewTransactionDelivery(trxUsecase, logUsecase)
 
@@ -70,6 +74,7 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		userRoute.POST("/transaction", trxDelivery.AddTransaction)
 		//coin
 		userRoute.GET("/coin-balance", coinDelivery.GetDetailCoin)
+		userRoute.GET("/type-transaction", typeDelivery.GetAllType)
 	}
 
 	adminRoute := router.Group("/")

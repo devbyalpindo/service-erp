@@ -65,7 +65,7 @@ func (usecase *ActivityLogUsecaseImpl) GetActivity(limit int, offset int) dto.Re
 
 	var result map[string]any = make(map[string]any)
 	result["total"] = logList.Total
-	result["article"] = response
+	result["log"] = response
 
 	return helper.ResponseSuccess("ok", nil, result, 200)
 }

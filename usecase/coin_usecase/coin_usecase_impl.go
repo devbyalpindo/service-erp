@@ -83,7 +83,7 @@ func (usecase *CoinUsecaseImpl) UpdateCoinBalance(body dto.CoinUpdateBalance) dt
 					Messsage: helper.MessageError(fe.Tag()),
 				}
 			}
-			return helper.ResponseError("failed", out, 403)
+			return helper.ResponseError("failed", out, 400)
 		}
 	}
 

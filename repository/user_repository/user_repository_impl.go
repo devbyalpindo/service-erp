@@ -84,3 +84,10 @@ func (repository *UserRepositoryImpl) GetUserDetail(id string) (*entity.User, *e
 
 	return &user, &role, nil
 }
+
+func (repository *UserRepositoryImpl) CheckExistUser(username string) bool {
+	user := entity.User{}
+	result := repository.DB.Where("username = ?", username).Find(&user)
+
+	return result.RowsAffected == 0
+}
