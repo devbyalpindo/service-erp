@@ -73,7 +73,6 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	router.Use(middleware.CorsMiddleware())
 
 	router.POST("/login", userDelivery.UserLogin)
-	router.GET("/dashboard", dashboardDelivery.GetDashboard)
 
 	userRoute := router.Group("/")
 	userRoute.Use(middleware.UserAuth(jwtUsecase))
@@ -88,6 +87,9 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	adminRoute := router.Group("/")
 	adminRoute.Use(middleware.AdminAuth(jwtUsecase))
 	{
+		//dashboard
+		adminRoute.GET("/dashboard", dashboardDelivery.GetDashboard)
+
 		//user
 		adminRoute.GET("/user", userDelivery.GetAllUser)
 		adminRoute.GET("/role", userDelivery.GetAllRole)
