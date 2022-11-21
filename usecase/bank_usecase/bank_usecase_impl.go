@@ -6,7 +6,6 @@ import (
 	"erp-service/model/entity"
 	"erp-service/repository/bank_repository"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -54,7 +53,7 @@ func (usecase *BankUsecaseImpl) AddBank(body dto.BankAdd) dto.Response {
 		Category:      body.Category,
 		AccountNumber: body.AccountNumber,
 		Balance:       body.Balance,
-		Active:        true,
+		Active:        body.Active,
 		Ibanking:      body.Ibanking,
 		CodeAccess:    body.CodeAccess,
 		Pin:           body.Pin,
@@ -165,7 +164,6 @@ func (usecase *BankUsecaseImpl) UpdateBankBalance(body dto.BankUpdateBalance) dt
 
 	bankID, err := usecase.BankRepository.UpdateBalanceBank(payloadBank, body.Types)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Println(err.Error())
 		return helper.ResponseError("failed", err.Error(), 404)
 	}
 

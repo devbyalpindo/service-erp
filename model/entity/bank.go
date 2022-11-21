@@ -7,7 +7,7 @@ type Bank struct {
 	Category      string  `json:"category"`
 	AccountNumber string  `json:"account_number"`
 	Balance       float32 `json:"balance"`
-	Active        bool    `json:"active"`
+	Active        *bool   `json:"active"`
 	Ibanking      string  `json:"ibanking"`
 	CodeAccess    string  `json:"code_access"`
 	Pin           string  `json:"pin"`

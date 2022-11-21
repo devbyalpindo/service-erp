@@ -5,7 +5,6 @@ import (
 	"erp-service/model/dto"
 	"erp-service/usecase/activity_log_usecase"
 	"erp-service/usecase/transaction_usecase"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -64,8 +63,6 @@ func (res *TransactionDeliveryImpl) GetAllTransaction(c *gin.Context) {
 
 	dateFrom := c.Query("dateFrom")
 	dateTo := c.Query("dateTo")
-
-	log.Println(dateFrom, dateTo)
 
 	roleName, _ := c.Get("role")
 

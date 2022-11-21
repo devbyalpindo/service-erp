@@ -3,7 +3,6 @@ package middleware
 import (
 	"erp-service/helper"
 	"erp-service/usecase/jwt_usecase"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,7 +10,6 @@ import (
 func AdminAuth(jwtUsecase jwt_usecase.JwtUsecase) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		log.Println(authHeader)
 		if authHeader == "" {
 			resp := helper.ResponseError("You are unathorized", "Invalid token", 401)
 			c.AbortWithStatusJSON(resp.StatusCode, resp)

@@ -4,7 +4,6 @@ import (
 	"erp-service/helper"
 	"erp-service/model/entity"
 	"errors"
-	"log"
 
 	"gorm.io/gorm"
 )
@@ -49,7 +48,6 @@ func (repository *BankRepositoryImpl) GetDetailBank(id string) (*entity.Bank, er
 
 func (repository *BankRepositoryImpl) UpdateBank(id string, bank *entity.Bank) (*string, error) {
 	result := repository.DB.Model(&bank).Where("bank_id = ?", id).Updates(entity.Bank{BankName: bank.BankName, AccountName: bank.AccountName, Category: bank.Category, AccountNumber: bank.AccountNumber, Active: bank.Active, Ibanking: bank.Ibanking, CodeAccess: bank.CodeAccess, Pin: bank.Pin, UpdatedAt: bank.UpdatedAt})
-	log.Println(result)
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}

@@ -5,6 +5,7 @@ import (
 	"erp-service/delivery/activity_log_delivery"
 	"erp-service/delivery/bank_delivery"
 	"erp-service/delivery/coin_delivery"
+	"erp-service/delivery/dashboard_delivery"
 	"erp-service/delivery/transaction_delivery"
 	"erp-service/delivery/type_transaction_delivery"
 	"erp-service/delivery/user_delivery"
@@ -12,12 +13,14 @@ import (
 	"erp-service/repository/activity_log_repository"
 	"erp-service/repository/bank_repository"
 	"erp-service/repository/coin_repository"
+	"erp-service/repository/dashboard_repository"
 	"erp-service/repository/transaction_repository"
 	"erp-service/repository/type_repository"
 	"erp-service/repository/user_repository"
 	"erp-service/usecase/activity_log_usecase"
 	"erp-service/usecase/bank_usecase"
 	"erp-service/usecase/coin_usecase"
+	"erp-service/usecase/dashboard_usecase"
 	"erp-service/usecase/jwt_usecase"
 	"erp-service/usecase/transaction_usecase"
 	"erp-service/usecase/type_transaction_usecase"
@@ -62,10 +65,15 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	trxUsecase := transaction_usecase.NewTransactionUsecase(trxRepository, coinRepository, bankRepository, typeRepository, validate)
 	trxDelivery := transaction_delivery.NewTransactionDelivery(trxUsecase, logUsecase)
 
+	dashboardRepository := dashboard_repository.NewDashboardRepository(mysqlConn)
+	dashboardUsecase := dashboard_usecase.NewDashboardUsecase(dashboardRepository, coinRepository)
+	dashboardDelivery := dashboard_delivery.NewDashboardDelivery(dashboardUsecase)
+
 	router := gin.Default()
 	router.Use(middleware.CorsMiddleware())
 
 	router.POST("/login", userDelivery.UserLogin)
+	router.GET("/dashboard", dashboardDelivery.GetDashboard)
 
 	userRoute := router.Group("/")
 	userRoute.Use(middleware.UserAuth(jwtUsecase))

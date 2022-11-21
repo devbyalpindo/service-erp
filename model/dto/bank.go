@@ -7,7 +7,7 @@ type Bank struct {
 	Category      string  `json:"category"`
 	AccountNumber string  `json:"account_number"`
 	Balance       float32 `json:"balance"`
-	Active        bool    `json:"active"`
+	Active        *bool   `json:"active"`
 	Ibanking      string  `json:"ibanking"`
 	CodeAccess    string  `json:"code_access"`
 	Pin           string  `json:"pin"`
@@ -19,7 +19,7 @@ type BankAdd struct {
 	Category      string  `validate:"required" json:"category"`
 	AccountNumber string  `validate:"required" json:"account_number"`
 	Balance       float32 `validate:"required" json:"balance"`
-	Active        bool    `validate:"required" json:"active"`
+	Active        *bool   `validate:"required" json:"active"`
 	Ibanking      string  `json:"ibanking"`
 	CodeAccess    string  `json:"code_access"`
 	Pin           string  `json:"pin"`
@@ -30,7 +30,7 @@ type BankUpdate struct {
 	AccountName   string `validate:"required" json:"account_name"`
 	Category      string `json:"category"`
 	AccountNumber string `validate:"required" json:"account_number"`
-	Active        bool   `validate:"required" json:"active"`
+	Active        *bool  `validate:"required" json:"active"`
 	Ibanking      string `json:"ibanking"`
 	CodeAccess    string `json:"code_access"`
 	Pin           string `json:"pin"`

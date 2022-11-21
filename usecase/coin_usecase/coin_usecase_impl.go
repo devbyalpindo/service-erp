@@ -6,7 +6,6 @@ import (
 	"erp-service/model/entity"
 	"erp-service/repository/coin_repository"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -95,7 +94,6 @@ func (usecase *CoinUsecaseImpl) UpdateCoinBalance(body dto.CoinUpdateBalance) dt
 
 	coinID, err := usecase.CoinRepository.UpdateBalanceCoin(payloadCoin, body.Types)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		log.Println(err.Error())
 		return helper.ResponseError("failed", err.Error(), 404)
 	}
 

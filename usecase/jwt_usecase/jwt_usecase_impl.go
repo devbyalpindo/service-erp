@@ -4,7 +4,6 @@ import (
 	"erp-service/repository/user_repository"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -30,7 +29,6 @@ type CustomClaim struct {
 }
 
 func (jwtAuth *JwtUsecaseImpl) GenerateToken(userId string, username string, roleId string) (string, error) {
-	log.Println(userId, roleId)
 	data, err := jwtAuth.UserRepository.GetRoleById(roleId)
 	if err != nil {
 		return "User not found", err
