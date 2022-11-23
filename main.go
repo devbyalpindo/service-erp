@@ -10,10 +10,14 @@ import (
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	godotenv.Load()
 	config.InitConfig()
+
 	loc, err := time.LoadLocation("Asia/Jakarta")
 	helper.PanicIfError(err)
 	time.Local = loc

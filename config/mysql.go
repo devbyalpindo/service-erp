@@ -21,6 +21,7 @@ func ConnectMySQL() (*gorm.DB, error) {
 		},
 	)
 	connectionString := CONFIG["MYSQL_USER"] + ":" + CONFIG["MYSQL_PASS"] + "@tcp(" + CONFIG["MYSQL_HOST"] + ":" + CONFIG["MYSQL_PORT"] + ")/" + CONFIG["MYSQL_SCHEMA"] + "?parseTime=true"
+	log.Println(connectionString)
 	mysqlConn, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{Logger: newLogger})
 
 	if err != nil {

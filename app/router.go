@@ -72,41 +72,41 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	router := gin.Default()
 	router.Use(middleware.CorsMiddleware())
 
-	router.POST("/login", userDelivery.UserLogin)
+	router.POST("/api/login", userDelivery.UserLogin)
 
 	userRoute := router.Group("/")
 	userRoute.Use(middleware.UserAuth(jwtUsecase))
 	{
-		userRoute.GET("/transaction", trxDelivery.GetAllTransaction)
-		userRoute.POST("/transaction", trxDelivery.AddTransaction)
+		userRoute.GET("/api/transaction", trxDelivery.GetAllTransaction)
+		userRoute.POST("/api/transaction", trxDelivery.AddTransaction)
 		//coin
-		userRoute.GET("/coin-balance", coinDelivery.GetDetailCoin)
-		userRoute.GET("/type-transaction", typeDelivery.GetAllType)
+		userRoute.GET("/api/coin-balance", coinDelivery.GetDetailCoin)
+		userRoute.GET("/api/type-transaction", typeDelivery.GetAllType)
 	}
 
 	adminRoute := router.Group("/")
 	adminRoute.Use(middleware.AdminAuth(jwtUsecase))
 	{
 		//dashboard
-		adminRoute.GET("/dashboard", dashboardDelivery.GetDashboard)
+		adminRoute.GET("/api/dashboard", dashboardDelivery.GetDashboard)
 
 		//user
-		adminRoute.GET("/user", userDelivery.GetAllUser)
-		adminRoute.GET("/role", userDelivery.GetAllRole)
-		adminRoute.POST("/user", userDelivery.AddUser)
+		adminRoute.GET("/api/user", userDelivery.GetAllUser)
+		adminRoute.GET("/api/role", userDelivery.GetAllRole)
+		adminRoute.POST("/api/user", userDelivery.AddUser)
 
 		//bank
-		adminRoute.GET("/bank", bankDelivery.GetAllBank)
-		adminRoute.POST("/bank", bankDelivery.AddBank)
-		adminRoute.PUT("/bank-balance", bankDelivery.UpdateBankBalance)
-		adminRoute.PUT("/bank/:id", bankDelivery.UpdateBank)
+		adminRoute.GET("/api/bank", bankDelivery.GetAllBank)
+		adminRoute.POST("/api/bank", bankDelivery.AddBank)
+		adminRoute.PUT("/api/bank-balance", bankDelivery.UpdateBankBalance)
+		adminRoute.PUT("/api/bank/:id", bankDelivery.UpdateBank)
 
 		//log
-		adminRoute.GET("/log", logDelivery.GetActivity)
+		adminRoute.GET("/api/log", logDelivery.GetActivity)
 
 		//coin
-		adminRoute.GET("/coin", coinDelivery.GetCoin)
-		adminRoute.PUT("/coin-balance", coinDelivery.UpdateCoinBalance)
+		adminRoute.GET("/api/coin", coinDelivery.GetCoin)
+		adminRoute.PUT("/api/coin-balance", coinDelivery.UpdateCoinBalance)
 	}
 
 	return router
