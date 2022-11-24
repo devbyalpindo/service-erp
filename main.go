@@ -31,7 +31,7 @@ func main() {
 		router := app.InitRouter(mysqlConn)
 		log.Println("routes Initialized")
 
-		port := config.CONFIG["PORT"]
+		port := config.CONFIG["PORT_SERVICE"]
 		srv := &http.Server{
 			Addr:    ":" + port,
 			Handler: router,

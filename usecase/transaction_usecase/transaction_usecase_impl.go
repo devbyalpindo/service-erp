@@ -126,6 +126,7 @@ func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit 
 	helper.PanicIfError(err)
 	response := []dto.TransactionJoin{}
 	for _, trx := range trxList.Transaction {
+		timeCreated, _ := time.Parse(time.RFC3339, trx.CreatedAt)
 		responseData := dto.TransactionJoin{
 			TransactionID:     trx.TransactionID,
 			UserID:            trx.UserID,
@@ -143,7 +144,7 @@ func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit 
 			LastBalanceCoin:   trx.LastBalanceCoin,
 			LastBalanceBank:   trx.LastBalanceBank,
 			CreatedBy:         trx.CreatedBy,
-			CreatedAt:         trx.CreatedAt,
+			CreatedAt:         timeCreated.Format("2006-01-02 15:04:05"),
 		}
 		response = append(response, responseData)
 	}

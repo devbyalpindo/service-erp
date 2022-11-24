@@ -53,12 +53,13 @@ func (usecase *ActivityLogUsecaseImpl) GetActivity(limit int, offset int) dto.Re
 	helper.PanicIfError(err)
 	response := []dto.ActivityLog{}
 	for _, logs := range logList.ActivityLog {
+		timeCreated, _ := time.Parse(time.RFC3339, logs.CreatedAt)
 		responseData := dto.ActivityLog{
 			UserID:        logs.UserID,
 			IsTransaction: logs.IsTransaction,
 			TransactionID: logs.TransactionID,
 			Description:   logs.Description,
-			CreatedAt:     logs.CreatedAt,
+			CreatedAt:     timeCreated.Format("2006-01-02 15:04:05"),
 		}
 		response = append(response, responseData)
 	}

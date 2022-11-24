@@ -14,7 +14,7 @@ const ENVIRONMENT string = LOCAL
 
 var config_env = map[string]map[string]string{
 	"local": {
-		"PORT":         os.Getenv("PORT_SERVICE"),
+		"PORT_SERVICE": os.Getenv("PORT_SERVICE"),
 		"MYSQL_HOST":   os.Getenv("MYSQL_HOST"),
 		"MYSQL_PORT":   os.Getenv("MYSQL_PORT"),
 		"MYSQL_USER":   os.Getenv("MYSQL_USER"),

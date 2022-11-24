@@ -91,13 +91,14 @@ func (usecase *UserUsecaseImpl) GetAllUser() dto.Response {
 	response := []dto.UserRole{}
 
 	for _, user := range userList {
+		timeCreated, _ := time.Parse(time.RFC3339, user.CreatedAt)
 		responseData := dto.UserRole{
 			UserID:      user.UserID,
 			Username:    user.Username,
 			PhoneNumber: user.PhoneNumber,
 			RoleID:      user.RoleID,
 			RoleName:    user.RoleName,
-			CreatedAt:   user.CreatedAt,
+			CreatedAt:   timeCreated.Format("2006-01-02 15:04:05"),
 			UpdatedAt:   user.UpdatedAt,
 		}
 		response = append(response, responseData)
