@@ -6,6 +6,7 @@ import (
 	"erp-service/delivery/bank_delivery"
 	"erp-service/delivery/coin_delivery"
 	"erp-service/delivery/dashboard_delivery"
+	"erp-service/delivery/player_delivery"
 	"erp-service/delivery/transaction_delivery"
 	"erp-service/delivery/type_transaction_delivery"
 	"erp-service/delivery/user_delivery"
@@ -14,6 +15,7 @@ import (
 	"erp-service/repository/bank_repository"
 	"erp-service/repository/coin_repository"
 	"erp-service/repository/dashboard_repository"
+	"erp-service/repository/player_repository"
 	"erp-service/repository/transaction_repository"
 	"erp-service/repository/type_repository"
 	"erp-service/repository/user_repository"
@@ -22,6 +24,7 @@ import (
 	"erp-service/usecase/coin_usecase"
 	"erp-service/usecase/dashboard_usecase"
 	"erp-service/usecase/jwt_usecase"
+	"erp-service/usecase/player_usecase"
 	"erp-service/usecase/transaction_usecase"
 	"erp-service/usecase/type_transaction_usecase"
 	"erp-service/usecase/user_usecase"
@@ -69,6 +72,10 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	dashboardUsecase := dashboard_usecase.NewDashboardUsecase(dashboardRepository, coinRepository)
 	dashboardDelivery := dashboard_delivery.NewDashboardDelivery(dashboardUsecase)
 
+	playerRepository := player_repository.NewPlayerRepository(mysqlConn)
+	playerUsecase := player_usecase.NewPlayerUsecase(playerRepository, validate)
+	playerDelivery := player_delivery.NewPlayerDelivery(playerUsecase, logUsecase)
+
 	router := gin.Default()
 	router.Use(middleware.CorsMiddleware())
 
@@ -82,6 +89,14 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		//coin
 		userRoute.GET("/api/coin-balance", coinDelivery.GetDetailCoin)
 		userRoute.GET("/api/type-transaction", typeDelivery.GetAllType)
+
+		//player
+		userRoute.GET("/api/player", playerDelivery.GetAllPlayer)
+		userRoute.POST("/api/player", playerDelivery.AddPlayer)
+		userRoute.POST("/api/bank-player", playerDelivery.AddBankPlayer)
+
+		//bank
+		userRoute.GET("/api/bank", bankDelivery.GetAllBank)
 	}
 
 	adminRoute := router.Group("/")
@@ -96,7 +111,6 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		adminRoute.POST("/api/user", userDelivery.AddUser)
 
 		//bank
-		adminRoute.GET("/api/bank", bankDelivery.GetAllBank)
 		adminRoute.POST("/api/bank", bankDelivery.AddBank)
 		adminRoute.PUT("/api/bank-balance", bankDelivery.UpdateBankBalance)
 		adminRoute.PUT("/api/bank/:id", bankDelivery.UpdateBank)
