@@ -61,20 +61,20 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	userUsecase := user_usecase.NewUserUsecase(userRepository, jwtUsecase, validate)
 	userDelivery := user_delivery.NewUserDelivery(userUsecase, logUsecase)
 
+	playerRepository := player_repository.NewPlayerRepository(mysqlConn)
+	playerUsecase := player_usecase.NewPlayerUsecase(playerRepository, validate)
+	playerDelivery := player_delivery.NewPlayerDelivery(playerUsecase, logUsecase)
+
 	trxRepository := transaction_repository.NewTransactionRepository(mysqlConn)
 	typeRepository := type_repository.NewTypeRepository(mysqlConn)
 	typeUsecase := type_transaction_usecase.NewTypeTransactionUsecase(typeRepository)
 	typeDelivery := type_transaction_delivery.NewTypeTransactionDelivery(typeUsecase)
-	trxUsecase := transaction_usecase.NewTransactionUsecase(trxRepository, coinRepository, bankRepository, typeRepository, validate)
+	trxUsecase := transaction_usecase.NewTransactionUsecase(trxRepository, coinRepository, bankRepository, typeRepository, playerRepository, validate)
 	trxDelivery := transaction_delivery.NewTransactionDelivery(trxUsecase, logUsecase)
 
 	dashboardRepository := dashboard_repository.NewDashboardRepository(mysqlConn)
 	dashboardUsecase := dashboard_usecase.NewDashboardUsecase(dashboardRepository, coinRepository)
 	dashboardDelivery := dashboard_delivery.NewDashboardDelivery(dashboardUsecase)
-
-	playerRepository := player_repository.NewPlayerRepository(mysqlConn)
-	playerUsecase := player_usecase.NewPlayerUsecase(playerRepository, validate)
-	playerDelivery := player_delivery.NewPlayerDelivery(playerUsecase, logUsecase)
 
 	router := gin.Default()
 	router.Use(middleware.CorsMiddleware())

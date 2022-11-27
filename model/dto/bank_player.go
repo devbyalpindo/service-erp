@@ -10,7 +10,7 @@ type BankPlayer struct {
 }
 
 type AddBankPlayer struct {
-	PlayerID      string `json:"player_id"`
-	BankName      string `json:"bank_name"`
-	AccountNumber string `json:"account_number"`
+	PlayerID      string `validate:"required" json:"player_id"`
+	BankName      string `validate:"required" json:"bank_name"`
+	AccountNumber string `validate:"required" json:"account_number"`
 }

@@ -6,6 +6,7 @@ import (
 	"erp-service/model/entity"
 	"erp-service/repository/bank_repository"
 	"erp-service/repository/coin_repository"
+	"erp-service/repository/player_repository"
 	"erp-service/repository/transaction_repository"
 	"erp-service/repository/type_repository"
 	"errors"
@@ -17,20 +18,22 @@ import (
 )
 
 type TransactionUsecaseImpl struct {
-	TrxRepository  transaction_repository.TransactionRepository
-	CoinRepository coin_repository.CoinRepository
-	BankRepository bank_repository.BankRepository
-	TypeRepository type_repository.TypeRepository
-	Validate       *validator.Validate
+	TrxRepository    transaction_repository.TransactionRepository
+	PlayerRepository player_repository.PlayerRepository
+	CoinRepository   coin_repository.CoinRepository
+	BankRepository   bank_repository.BankRepository
+	TypeRepository   type_repository.TypeRepository
+	Validate         *validator.Validate
 }
 
-func NewTransactionUsecase(trxRepository transaction_repository.TransactionRepository, coinRepository coin_repository.CoinRepository, bankRepository bank_repository.BankRepository, typeRepository type_repository.TypeRepository, validate *validator.Validate) TransactionUsecase {
+func NewTransactionUsecase(trxRepository transaction_repository.TransactionRepository, coinRepository coin_repository.CoinRepository, bankRepository bank_repository.BankRepository, typeRepository type_repository.TypeRepository, playerRepository player_repository.PlayerRepository, validate *validator.Validate) TransactionUsecase {
 	return &TransactionUsecaseImpl{
-		TrxRepository:  trxRepository,
-		CoinRepository: coinRepository,
-		BankRepository: bankRepository,
-		TypeRepository: typeRepository,
-		Validate:       validate,
+		TrxRepository:    trxRepository,
+		PlayerRepository: playerRepository,
+		CoinRepository:   coinRepository,
+		BankRepository:   bankRepository,
+		TypeRepository:   typeRepository,
+		Validate:         validate,
 	}
 }
 
@@ -49,11 +52,20 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 			}
 			return helper.ResponseError("failed", out, 400)
 		}
-
 	}
 
 	createID := uuid.New().String()
 	helper.PanicIfError(err)
+
+	player, _ := usecase.PlayerRepository.GetPlayerByID(body.PlayerID)
+	if player {
+		return helper.ResponseError("failed", "player not found", 404)
+	}
+
+	bankPlayer, err := usecase.PlayerRepository.GetPlayerBankByID(body.BankPlayerID)
+	if err != nil {
+		return helper.ResponseError("failed", "bank player not found", 404)
+	}
 
 	coin, err := usecase.CoinRepository.GetDetailCoin()
 	if err != nil {
@@ -73,10 +85,8 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 	payloadTrx := &entity.Transaction{
 		TransactionID:   createID,
 		UserID:          userID,
-		PlayerName:      body.PlayerName,
 		PlayerID:        body.PlayerID,
-		BankPlayer:      body.BankPlayer,
-		AccountNumber:   body.AccountNumber,
+		BankPlayerID:    bankPlayer.BankPlayerID,
 		BankID:          body.BankID,
 		TypeID:          body.TypeID,
 		Ammount:         body.Ammount,
@@ -128,23 +138,23 @@ func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit 
 	for _, trx := range trxList.Transaction {
 		timeCreated, _ := time.Parse(time.RFC3339, trx.CreatedAt)
 		responseData := dto.TransactionJoin{
-			TransactionID:     trx.TransactionID,
-			UserID:            trx.UserID,
-			PlayerName:        trx.PlayerName,
-			PlayerID:          trx.PlayerID,
-			BankPlayer:        trx.BankPlayer,
-			AccountNumber:     trx.AccountNumber,
-			BankID:            trx.BankID,
-			BankName:          trx.BankName,
-			AccountNumberBank: trx.AccountNumberBank,
-			TypeID:            trx.TypeID,
-			TypeTransaction:   trx.TypeTransaction,
-			Ammount:           trx.Ammount,
-			AdminFee:          trx.AdminFee,
-			LastBalanceCoin:   trx.LastBalanceCoin,
-			LastBalanceBank:   trx.LastBalanceBank,
-			CreatedBy:         trx.CreatedBy,
-			CreatedAt:         timeCreated.Format("2006-01-02 15:04:05"),
+			TransactionID:       trx.TransactionID,
+			UserID:              trx.UserID,
+			PlayerName:          trx.PlayerName,
+			PlayerID:            trx.PlayerID,
+			BankPlayerName:      trx.BankPlayerName,
+			AccountNumberPlayer: trx.AccountNumberPlayer,
+			BankID:              trx.BankID,
+			BankName:            trx.BankName,
+			AccountNumberBank:   trx.AccountNumberBank,
+			TypeID:              trx.TypeID,
+			TypeTransaction:     trx.TypeTransaction,
+			Ammount:             trx.Ammount,
+			AdminFee:            trx.AdminFee,
+			LastBalanceCoin:     trx.LastBalanceCoin,
+			LastBalanceBank:     trx.LastBalanceBank,
+			CreatedBy:           trx.CreatedBy,
+			CreatedAt:           timeCreated.Format("2006-01-02 15:04:05"),
 		}
 		response = append(response, responseData)
 	}
