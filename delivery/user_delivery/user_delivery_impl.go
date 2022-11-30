@@ -102,3 +102,13 @@ func (res *UserDeliveryImpl) UserLogin(c *gin.Context) {
 
 	c.JSON(response.StatusCode, response)
 }
+
+func (res *UserDeliveryImpl) DeleteUsers(c *gin.Context) {
+	id := c.Param("id")
+	response := res.usecase.DeleteUsers(id)
+	if response.Status != "ok" {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}

@@ -97,6 +97,9 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 
 		//bank
 		userRoute.GET("/api/bank", bankDelivery.GetAllBank)
+
+		//coin
+		userRoute.GET("/api/coin", coinDelivery.GetCoin)
 	}
 
 	adminRoute := router.Group("/")
@@ -109,6 +112,7 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		adminRoute.GET("/api/user", userDelivery.GetAllUser)
 		adminRoute.GET("/api/role", userDelivery.GetAllRole)
 		adminRoute.POST("/api/user", userDelivery.AddUser)
+		adminRoute.DELETE("/api/user/:id", userDelivery.DeleteUsers)
 
 		//bank
 		adminRoute.POST("/api/bank", bankDelivery.AddBank)
@@ -119,7 +123,6 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		adminRoute.GET("/api/log", logDelivery.GetActivity)
 
 		//coin
-		adminRoute.GET("/api/coin", coinDelivery.GetCoin)
 		adminRoute.PUT("/api/coin-balance", coinDelivery.UpdateCoinBalance)
 	}
 

@@ -25,7 +25,7 @@ func (repository *UserRepositoryImpl) AddUser(user *entity.User) (*string, error
 
 func (repository *UserRepositoryImpl) LoginUsers(username string) (*entity.User, error) {
 	user := entity.User{}
-	result := repository.DB.Where("username = ?", username).Find(&user)
+	result := repository.DB.Where("username = ? AND status = ?", username, "ACTIVE").Find(&user)
 
 	if result.RowsAffected == 0 {
 		return nil, gorm.ErrRecordNotFound
@@ -36,7 +36,7 @@ func (repository *UserRepositoryImpl) LoginUsers(username string) (*entity.User,
 
 func (repository *UserRepositoryImpl) GetAllUser() ([]entity.UserRole, error) {
 	user := []entity.UserRole{}
-	err := repository.DB.Table("users").Select("users.user_id, users.username, users.phone_number, users.role_id, roles.role_name, users.created_at, users.updated_at").Joins("inner join roles on roles.role_id = users.role_id").Find(&user).Error
+	err := repository.DB.Table("users").Select("users.user_id, users.username, users.phone_number, users.role_id, roles.role_name, users.created_at, users.updated_at").Joins("inner join roles on roles.role_id = users.role_id").Where("users.status = ?", "ACTIVE").Find(&user).Error
 	helper.PanicIfError(err)
 	if len(user) <= 0 {
 		return nil, gorm.ErrRecordNotFound
@@ -69,7 +69,7 @@ func (repository *UserRepositoryImpl) GetRoleById(id string) (*entity.Role, erro
 
 func (repository *UserRepositoryImpl) GetUserDetail(id string) (*entity.User, *entity.Role, error) {
 	user := entity.User{}
-	result := repository.DB.Where("user_id = ?", id).Find(&user)
+	result := repository.DB.Where("user_id = ? AND status = ?", id, "ACTIVE").Find(&user)
 
 	if result.RowsAffected == 0 {
 		return nil, nil, gorm.ErrRecordNotFound
@@ -90,4 +90,14 @@ func (repository *UserRepositoryImpl) CheckExistUser(username string) bool {
 	result := repository.DB.Where("username = ?", username).Find(&user)
 
 	return result.RowsAffected == 0
+}
+
+func (repository *UserRepositoryImpl) DeleteUsers(id string) (*string, error) {
+	result := repository.DB.Model(&entity.User{}).Where("user_id = ?", id).Update("status", "INACTIVE")
+
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return &id, nil
 }

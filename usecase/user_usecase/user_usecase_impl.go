@@ -158,3 +158,14 @@ func (usecase *UserUsecaseImpl) LoginUser(userPayload dto.UserLogin) dto.Respons
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"user_id": user.UserID, "token": jwt}, 200)
 
 }
+
+func (usecase *UserUsecaseImpl) DeleteUsers(id string) dto.Response {
+	user, err := usecase.UserRepository.DeleteUsers(id)
+
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", "User not found", 404)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"user_id": user}, 200)
+
+}

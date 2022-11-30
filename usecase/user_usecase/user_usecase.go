@@ -7,4 +7,5 @@ type UserUsecase interface {
 	GetAllUser() dto.Response
 	GetAllRole() dto.Response
 	LoginUser(dto.UserLogin) dto.Response
+	DeleteUsers(id string) dto.Response
 }

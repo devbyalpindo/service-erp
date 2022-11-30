@@ -7,4 +7,5 @@ type UserDelivery interface {
 	GetAllUser(*gin.Context)
 	GetAllRole(*gin.Context)
 	UserLogin(*gin.Context)
+	DeleteUsers(*gin.Context)
 }
