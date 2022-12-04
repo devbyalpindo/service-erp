@@ -86,6 +86,7 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	{
 		userRoute.GET("/api/transaction", trxDelivery.GetAllTransaction)
 		userRoute.POST("/api/transaction", trxDelivery.AddTransaction)
+		userRoute.PUT("/api/transaction/:id", trxDelivery.UpdateTransaction)
 		//coin
 		userRoute.GET("/api/coin-balance", coinDelivery.GetDetailCoin)
 		userRoute.GET("/api/type-transaction", typeDelivery.GetAllType)
@@ -97,9 +98,13 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 
 		//bank
 		userRoute.GET("/api/bank", bankDelivery.GetAllBank)
+		userRoute.POST("/api/transfer-bank", bankDelivery.TransferToBank)
+		userRoute.PUT("/api/bank-balance", bankDelivery.UpdateBankBalance)
+		userRoute.POST("/api/mutation-bank", bankDelivery.GetMutation)
 
 		//coin
 		userRoute.GET("/api/coin", coinDelivery.GetCoin)
+		userRoute.PUT("/api/coin-balance", coinDelivery.UpdateCoinBalance)
 	}
 
 	adminRoute := router.Group("/")
@@ -113,17 +118,14 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		adminRoute.GET("/api/role", userDelivery.GetAllRole)
 		adminRoute.POST("/api/user", userDelivery.AddUser)
 		adminRoute.DELETE("/api/user/:id", userDelivery.DeleteUsers)
+		adminRoute.POST("/api/user/change-password", userDelivery.ChangePassword)
 
 		//bank
 		adminRoute.POST("/api/bank", bankDelivery.AddBank)
-		adminRoute.PUT("/api/bank-balance", bankDelivery.UpdateBankBalance)
 		adminRoute.PUT("/api/bank/:id", bankDelivery.UpdateBank)
 
 		//log
 		adminRoute.GET("/api/log", logDelivery.GetActivity)
-
-		//coin
-		adminRoute.PUT("/api/coin-balance", coinDelivery.UpdateCoinBalance)
 	}
 
 	return router

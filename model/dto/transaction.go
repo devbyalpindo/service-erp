@@ -23,6 +23,13 @@ type AddTransaction struct {
 	TypeID       string  `validate:"required" json:"type_id"`
 	Ammount      float32 `validate:"min=0" json:"ammount"`
 	AdminFee     float32 `validate:"min=0" json:"admin_fee"`
+	Status       string  `validate:"required" json:"status"`
+}
+
+type UpdateTransactionPending struct {
+	PlayerID     string `validate:"required" json:"player_id"`
+	BankPlayerID string `validate:"required" json:"bank_player_id"`
+	Status       string `validate:"required" json:"status"`
 }
 
 type TransactionWithTotal struct {
@@ -46,6 +53,7 @@ type TransactionJoin struct {
 	AdminFee            float32 `json:"admin_fee"`
 	LastBalanceCoin     float32 `json:"last_balance_coin"`
 	LastBalanceBank     float32 `json:"last_balance_bank"`
+	Status              string  `json:"status"`
 	CreatedBy           string  `json:"created_by"`
 	CreatedAt           string  `json:"created_at"`
 	UpdatedAt           string  `json:"updated_at"`

@@ -7,4 +7,6 @@ type BankUsecase interface {
 	GetAllBank() dto.Response
 	UpdateBank(string, dto.BankUpdate) dto.Response
 	UpdateBankBalance(dto.BankUpdateBalance) dto.Response
+	TransferToBank(dto.BankTransfer) dto.Response
+	GetMutation(dto.GetMutationBank) dto.Response
 }

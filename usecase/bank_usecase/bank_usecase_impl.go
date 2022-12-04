@@ -6,6 +6,7 @@ import (
 	"erp-service/model/entity"
 	"erp-service/repository/bank_repository"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -153,7 +154,6 @@ func (usecase *BankUsecaseImpl) UpdateBankBalance(body dto.BankUpdateBalance) dt
 			}
 			return helper.ResponseError("failed", out, 400)
 		}
-
 	}
 
 	payloadBank := &entity.Bank{
@@ -170,8 +170,106 @@ func (usecase *BankUsecaseImpl) UpdateBankBalance(body dto.BankUpdateBalance) dt
 	if err != nil {
 		return helper.ResponseError("failed", err.Error(), 400)
 	}
-
 	helper.PanicIfError(err)
 
-	return helper.ResponseSuccess("ok", nil, map[string]any{"bank_id": bankID}, 200)
+	var typeMutation string
+	var desc string
+
+	if body.Types == "PLUS" {
+		typeMutation = "CREDIT"
+		desc = "Saldo bank ditambahkan sebesar " + fmt.Sprintf("%.2f", body.Balance)
+	}
+
+	if body.Types == "MINUS" {
+		typeMutation = "DEBET"
+		desc = "Saldo bank dikurangi sebesar " + fmt.Sprintf("%.2f", body.Balance)
+	}
+
+	payloadMutation := entity.MutationBank{
+		MutationBankID: uuid.New().String(),
+		BankID:         body.BankID,
+		Type:           typeMutation,
+		Ammount:        body.Balance,
+		Description:    desc,
+		CreatedAt:      time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	mutationID, err := usecase.BankRepository.TransactionBank(payloadMutation)
+	if err != nil {
+		return helper.ResponseError("failed", err.Error(), 400)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]any{"bank_id": bankID, "mutation_bank_id": mutationID}, 200)
+}
+
+func (usecase *BankUsecaseImpl) TransferToBank(body dto.BankTransfer) dto.Response {
+	err := usecase.Validate.Struct(body)
+
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]dto.CustomMessageError, len(ve))
+			for i, fe := range ve {
+				out[i] = dto.CustomMessageError{
+					Field:    fe.Field(),
+					Messsage: helper.MessageError(fe.Tag()),
+				}
+			}
+			return helper.ResponseError("failed", out, 400)
+		}
+
+	}
+
+	bankFrom, err := usecase.BankRepository.GetDetailBank(body.FromBankID)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	if bankFrom.Balance < (body.Balance + body.AdminFee) {
+		return helper.ResponseError("failed", "Saldo bank tidak mencukupi ", 400)
+	}
+
+	bankTo, err := usecase.BankRepository.GetDetailBank(body.ToBankID)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	transferBank, err := usecase.BankRepository.TransferToBank(bankFrom.BankID, bankFrom.Balance-(body.Balance+body.AdminFee), bankTo.BankID, bankTo.Balance+body.Balance, body.Balance)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]any{"bank_id": transferBank}, 200)
+}
+
+func (usecase *BankUsecaseImpl) GetMutation(body dto.GetMutationBank) dto.Response {
+	err := usecase.Validate.Struct(body)
+
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]dto.CustomMessageError, len(ve))
+			for i, fe := range ve {
+				out[i] = dto.CustomMessageError{
+					Field:    fe.Field(),
+					Messsage: helper.MessageError(fe.Tag()),
+				}
+			}
+			return helper.ResponseError("failed", out, 400)
+		}
+	}
+
+	listMutation, err := usecase.BankRepository.GetMutation(body.BankID, body.Type, body.Limit, body.Offset, body.DateFrom, body.DateTo)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", "Data not found", 404)
+	} else if err != nil {
+		return helper.ResponseError("failed", err, 500)
+	}
+	helper.PanicIfError(err)
+
+	var result map[string]any = make(map[string]any)
+	result["total"] = listMutation.Total
+	result["mutasi"] = listMutation.Mutation
+
+	return helper.ResponseSuccess("ok", nil, result, 200)
 }

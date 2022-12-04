@@ -169,3 +169,26 @@ func (usecase *UserUsecaseImpl) DeleteUsers(id string) dto.Response {
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"user_id": user}, 200)
 
 }
+
+func (usecase *UserUsecaseImpl) ChangePassword(body dto.UserChangePassword) dto.Response {
+	user, _, err := usecase.UserRepository.GetUserDetail(body.UserID)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", "User not found", 404)
+	}
+
+	errPassword := helper.CheckPasswordHash(body.OldPassword, user.Password)
+
+	if errPassword != nil {
+		return helper.ResponseError("failed", "Password incorrect", 400)
+	}
+
+	encryptPwd, err := helper.HashPassword(body.NewPassword)
+	helper.PanicIfError(err)
+
+	id, err := usecase.UserRepository.ChangePassword(body.UserID, encryptPwd)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", "Failed change password", 404)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"user_id": id}, 200)
+}

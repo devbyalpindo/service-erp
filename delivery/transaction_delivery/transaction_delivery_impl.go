@@ -74,3 +74,35 @@ func (res *TransactionDeliveryImpl) GetAllTransaction(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (res *TransactionDeliveryImpl) UpdateTransaction(c *gin.Context) {
+	id := c.Param("id")
+
+	updateRequest := dto.UpdateTransactionPending{}
+	if err := c.ShouldBindJSON(&updateRequest); err != nil {
+		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	response := res.usecase.UpdateTransaction(id, updateRequest)
+
+	userID, _ := c.Get("user_id")
+	userName, _ := c.Get("username")
+
+	logBody := dto.ActivityLog{
+		UserID:        userID.(string),
+		IsTransaction: true,
+		TransactionID: response.Data["id"].(string),
+		Description:   userName.(string) + " telah merubah status transaksi",
+		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	_, errors := res.log.AddActivity(logBody)
+
+	if errors != nil {
+		helper.PanicIfError(errors)
+	}
+
+	c.JSON(http.StatusOK, response)
+}

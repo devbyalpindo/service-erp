@@ -11,4 +11,5 @@ type UserRepository interface {
 	GetRoleById(id string) (*entity.Role, error)
 	CheckExistUser(username string) bool
 	GetUserDetail(id string) (*entity.User, *entity.Role, error)
+	ChangePassword(id string, password string) (*string, error)
 }

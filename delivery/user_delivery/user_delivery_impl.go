@@ -112,3 +112,18 @@ func (res *UserDeliveryImpl) DeleteUsers(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response)
 }
+
+func (res *UserDeliveryImpl) ChangePassword(c *gin.Context) {
+	user := dto.UserChangePassword{}
+	if err := c.ShouldBindJSON(&user); err != nil {
+		errorRes := helper.ResponseError("Bad Request", "Please fill form", 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+	response := res.usecase.ChangePassword(user)
+	if response.Status != "ok" {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}

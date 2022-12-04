@@ -44,10 +44,17 @@ func (res *CoinDeliveryImpl) GetDetailCoin(c *gin.Context) {
 }
 
 func (res *CoinDeliveryImpl) UpdateCoinBalance(c *gin.Context) {
+	role, _ := c.Get("role")
 
 	coinRequest := dto.CoinUpdateBalance{}
 	if err := c.ShouldBindJSON(&coinRequest); err != nil {
 		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	if coinRequest.Types == "MINUS" && role != "ADMIN" {
+		errorRes := helper.ResponseError("Forbidden", "You have no access to do this action", 403)
 		c.JSON(errorRes.StatusCode, errorRes)
 		return
 	}

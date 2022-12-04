@@ -7,4 +7,6 @@ type BankDelivery interface {
 	GetAllBank(*gin.Context)
 	UpdateBank(*gin.Context)
 	UpdateBankBalance(*gin.Context)
+	TransferToBank(*gin.Context)
+	GetMutation(*gin.Context)
 }

@@ -41,3 +41,19 @@ type BankUpdateBalance struct {
 	Types   string  `validate:"required" json:"type"`
 	Balance float32 `validate:"required" json:"balance"`
 }
+
+type BankTransfer struct {
+	FromBankID string  `validate:"required" json:"from_bank_id"`
+	ToBankID   string  `validate:"required" json:"to_bank_id"`
+	Balance    float32 `validate:"min=0" json:"balance"`
+	AdminFee   float32 `validate:"min=0" json:"admin_fee"`
+}
+
+type GetMutationBank struct {
+	BankID   string `json:"bank_id"`
+	Type     string `json:"type"`
+	DateFrom string `validate:"required" json:"date_from"`
+	DateTo   string `validate:"required" json:"date_to"`
+	Limit    int    `validate:"min=0" json:"limit"`
+	Offset   int    `validate:"min=0" json:"offset"`
+}

@@ -93,6 +93,7 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 		AdminFee:        body.AdminFee,
 		LastBalanceCoin: coin.Balance,
 		LastBalanceBank: bank.Balance,
+		Status:          body.Status,
 		CreatedAt:       time.Now().Format("2006-01-02 15:04:05"),
 		UpdatedAt:       time.Now().Format("2006-01-02 15:04:05"),
 	}
@@ -105,22 +106,26 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 
 	var bankBalance float32
 	var coinBalance float32
+	var typeMutation string
 
 	switch types.TypeTransaction {
 	case "WITHDRAW":
 		bankBalance = bank.Balance - (body.Ammount + body.AdminFee)
-		coinBalance = coin.Balance - body.Ammount
+		coinBalance = coin.Balance + body.Ammount
+		typeMutation = "DEBET"
 	case "DEPOSIT":
 		bankBalance = bank.Balance + (body.Ammount + body.AdminFee)
-		coinBalance = coin.Balance + body.Ammount
-	case "BONUS":
-		bankBalance = bank.Balance - (body.Ammount + body.AdminFee)
 		coinBalance = coin.Balance - body.Ammount
+		typeMutation = "CREDIT"
+	case "BONUS":
+		bankBalance = bank.Balance
+		coinBalance = coin.Balance + body.Ammount
+		typeMutation = "NOT"
 	default:
 		return helper.ResponseError("failed", "transaksi gagal", 400)
 	}
 
-	trx, err := usecase.TrxRepository.AddTransaction(payloadTrx, coinBalance, bankBalance)
+	trx, err := usecase.TrxRepository.AddTransaction(payloadTrx, coinBalance, bankBalance, typeMutation)
 	helper.PanicIfError(err)
 
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trx}, 201)
@@ -153,6 +158,7 @@ func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit 
 			AdminFee:            trx.AdminFee,
 			LastBalanceCoin:     trx.LastBalanceCoin,
 			LastBalanceBank:     trx.LastBalanceBank,
+			Status:              trx.Status,
 			CreatedBy:           trx.CreatedBy,
 			CreatedAt:           timeCreated.Format("2006-01-02 15:04:05"),
 		}
@@ -164,4 +170,55 @@ func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit 
 	result["transaction"] = response
 
 	return helper.ResponseSuccess("ok", nil, result, 200)
+}
+
+func (usecase *TransactionUsecaseImpl) UpdateTransaction(transactionID string, body dto.UpdateTransactionPending) dto.Response {
+	err := usecase.Validate.Struct(body)
+
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]dto.CustomMessageError, len(ve))
+			for i, fe := range ve {
+				out[i] = dto.CustomMessageError{
+					Field:    fe.Field(),
+					Messsage: helper.MessageError(fe.Tag()),
+				}
+			}
+			return helper.ResponseError("failed", out, 400)
+		}
+	}
+
+	player, _ := usecase.PlayerRepository.GetPlayerByID(body.PlayerID)
+	if player {
+		return helper.ResponseError("failed", "player not found", 404)
+	}
+
+	bankPlayer, err := usecase.PlayerRepository.GetPlayerBankByID(body.BankPlayerID)
+	if err != nil {
+		return helper.ResponseError("failed", "bank player not found", 404)
+	}
+
+	trx, err := usecase.TrxRepository.GetDetailTransaction(transactionID)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	if trx.Status != "PENDING" {
+		return helper.ResponseError("failed", "Update Transaction Only PENDING STATUS", 400)
+	}
+
+	coin, err := usecase.CoinRepository.GetDetailCoin()
+	if err != nil {
+		return helper.ResponseError("failed", "coin not found", 404)
+	}
+
+	balanceCoin := coin.Balance - trx.Ammount
+
+	trxUpdate, err := usecase.TrxRepository.UpdateTransaction(transactionID, body.PlayerID, bankPlayer.BankPlayerID, body.Status, balanceCoin)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trxUpdate}, 200)
 }

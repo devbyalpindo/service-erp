@@ -21,3 +21,9 @@ type UserRole struct {
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
 }
+
+type UserChangePassword struct {
+	UserID      string `validate:"required" json:"user_id"`
+	OldPassword string `validate:"required" json:"old_password"`
+	NewPassword string `validate:"required" json:"new_password"`
+}

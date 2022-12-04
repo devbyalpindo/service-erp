@@ -101,10 +101,16 @@ func (res *BankDeliveryImpl) UpdateBank(c *gin.Context) {
 }
 
 func (res *BankDeliveryImpl) UpdateBankBalance(c *gin.Context) {
-
+	role, _ := c.Get("role")
 	bankRequest := dto.BankUpdateBalance{}
 	if err := c.ShouldBindJSON(&bankRequest); err != nil {
 		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	if bankRequest.Types == "MINUS" && role != "ADMIN" {
+		errorRes := helper.ResponseError("Forbidden", "You have no access to do this action", 403)
 		c.JSON(errorRes.StatusCode, errorRes)
 		return
 	}
@@ -141,6 +147,56 @@ func (res *BankDeliveryImpl) UpdateBankBalance(c *gin.Context) {
 
 	if errors != nil {
 		helper.PanicIfError(errors)
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (res *BankDeliveryImpl) TransferToBank(c *gin.Context) {
+
+	bankRequest := dto.BankTransfer{}
+	if err := c.ShouldBindJSON(&bankRequest); err != nil {
+		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	response := res.usecase.TransferToBank(bankRequest)
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+	userID, _ := c.Get("user_id")
+	userName, _ := c.Get("username")
+
+	logBody := dto.ActivityLog{
+		UserID:        userID.(string),
+		IsTransaction: false,
+		Description:   userName.(string) + " telah transfer saldo bank dari bank " + bankRequest.FromBankID + " ke bank " + bankRequest.ToBankID + " sebesar " + fmt.Sprintf("%.2f", bankRequest.Balance),
+		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	_, errors := res.log.AddActivity(logBody)
+
+	if errors != nil {
+		helper.PanicIfError(errors)
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (res *BankDeliveryImpl) GetMutation(c *gin.Context) {
+	mutationRequest := dto.GetMutationBank{}
+	if err := c.ShouldBindJSON(&mutationRequest); err != nil {
+		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	response := res.usecase.GetMutation(mutationRequest)
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, response)
+		return
 	}
 
 	c.JSON(http.StatusOK, response)
