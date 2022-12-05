@@ -86,6 +86,10 @@ func (res *TransactionDeliveryImpl) UpdateTransaction(c *gin.Context) {
 	}
 
 	response := res.usecase.UpdateTransaction(id, updateRequest)
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, response)
+		return
+	}
 
 	userID, _ := c.Get("user_id")
 	userName, _ := c.Get("username")

@@ -17,8 +17,8 @@ type Transaction struct {
 	UpdatedAt       string  `json:"updated_at"`
 }
 type AddTransaction struct {
-	PlayerID     string  `validate:"required" json:"player_id"`
-	BankPlayerID string  `validate:"required" json:"bank_player_id"`
+	PlayerID     string  `json:"player_id"`
+	BankPlayerID string  `json:"bank_player_id"`
 	BankID       string  `validate:"required" json:"bank_id"`
 	TypeID       string  `validate:"required" json:"type_id"`
 	Ammount      float32 `validate:"min=0" json:"ammount"`

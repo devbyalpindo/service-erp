@@ -10,6 +10,7 @@ import (
 	"erp-service/repository/transaction_repository"
 	"erp-service/repository/type_repository"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -57,14 +58,29 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 	createID := uuid.New().String()
 	helper.PanicIfError(err)
 
-	player, _ := usecase.PlayerRepository.GetPlayerByID(body.PlayerID)
-	if player {
-		return helper.ResponseError("failed", "player not found", 404)
+	types, err := usecase.TypeRepository.GetDetailType(body.TypeID)
+	if err != nil {
+		return helper.ResponseError("failed", "type not found", 404)
 	}
 
-	bankPlayer, err := usecase.PlayerRepository.GetPlayerBankByID(body.BankPlayerID)
-	if err != nil {
-		return helper.ResponseError("failed", "bank player not found", 404)
+	if types.TypeTransaction == "WITHDRAW" && body.Status == "PENDING" {
+		return helper.ResponseError("failed", "status PENDING only DEPOSIT", 400)
+	}
+
+	if body.Status == "COMPLETED" && len(body.PlayerID) == 0 {
+		return helper.ResponseError("failed", "Player ID is required", 400)
+	}
+
+	if body.Status == "COMPLETED" {
+		player, _ := usecase.PlayerRepository.GetPlayerByID(body.PlayerID)
+		if player {
+			return helper.ResponseError("failed", "player not found", 404)
+		}
+
+		_, err := usecase.PlayerRepository.GetPlayerBankByID(body.BankPlayerID)
+		if err != nil {
+			return helper.ResponseError("failed", "bank player not found", 404)
+		}
 	}
 
 	coin, err := usecase.CoinRepository.GetDetailCoin()
@@ -77,16 +93,11 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 		return helper.ResponseError("failed", "bank not found", 404)
 	}
 
-	types, err := usecase.TypeRepository.GetDetailType(body.TypeID)
-	if err != nil {
-		return helper.ResponseError("failed", "type not found", 404)
-	}
-
 	payloadTrx := &entity.Transaction{
 		TransactionID:   createID,
 		UserID:          userID,
 		PlayerID:        body.PlayerID,
-		BankPlayerID:    bankPlayer.BankPlayerID,
+		BankPlayerID:    body.BankPlayerID,
 		BankID:          body.BankID,
 		TypeID:          body.TypeID,
 		Ammount:         body.Ammount,
@@ -189,6 +200,8 @@ func (usecase *TransactionUsecaseImpl) UpdateTransaction(transactionID string, b
 		}
 	}
 
+	log.Print(body)
+
 	player, _ := usecase.PlayerRepository.GetPlayerByID(body.PlayerID)
 	if player {
 		return helper.ResponseError("failed", "player not found", 404)
@@ -218,6 +231,10 @@ func (usecase *TransactionUsecaseImpl) UpdateTransaction(transactionID string, b
 	trxUpdate, err := usecase.TrxRepository.UpdateTransaction(transactionID, body.PlayerID, bankPlayer.BankPlayerID, body.Status, balanceCoin)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	if len(trxUpdate) == 0 {
+		return helper.ResponseError("failed", "Gagal update transaksi", 404)
 	}
 
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trxUpdate}, 200)

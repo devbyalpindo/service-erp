@@ -82,15 +82,15 @@ func (repository *TransactionRepositoryImpl) GetAllTransaction(roleName string, 
 	var err error
 
 	if roleName == "ADMIN" {
-		err = repository.DB.Table("transactions").Select("transactions.transaction_id, transactions.user_id, players.player_name, players.player_id, bank_players.bank_name as bank_player_name, bank_players.account_number as account_number_player, transactions.bank_id, banks.bank_name, banks.account_number as account_number_bank, transactions.type_id, type_transactions.type_transaction, transactions.ammount, transactions.admin_fee, transactions.last_balance_coin, transactions.last_balance_bank, transactions.status, users.username as created_by, transactions.created_at, transactions.updated_at").Joins("inner join banks on banks.bank_id = transactions.bank_id").Joins("inner join type_transactions on type_transactions.type_id = transactions.type_id").Joins("inner join users on users.user_id = transactions.user_id").Joins("inner join players on players.player_id = transactions.player_id").Joins("inner join bank_players on bank_players.bank_player_id = transactions.bank_player_id").Where("DATE(transactions.created_at) >= ? AND DATE(transactions.created_at) <= ?", dateFrom, dateTo).Order("transactions.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&trx).Error
+		err = repository.DB.Table("transactions").Select("transactions.transaction_id, transactions.user_id, players.player_name, players.player_id, bank_players.bank_name as bank_player_name, bank_players.account_number as account_number_player, transactions.bank_id, banks.bank_name, banks.account_number as account_number_bank, transactions.type_id, type_transactions.type_transaction, transactions.ammount, transactions.admin_fee, transactions.last_balance_coin, transactions.last_balance_bank, transactions.status, users.username as created_by, transactions.created_at, transactions.updated_at").Joins("inner join banks on banks.bank_id = transactions.bank_id").Joins("inner join type_transactions on type_transactions.type_id = transactions.type_id").Joins("inner join users on users.user_id = transactions.user_id").Joins("left join players on players.player_id = transactions.player_id").Joins("left join bank_players on bank_players.bank_player_id = transactions.bank_player_id").Where("DATE(transactions.created_at) >= ? AND DATE(transactions.created_at) <= ?", dateFrom, dateTo).Order("transactions.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&trx).Error
 	}
 
 	if roleName == "DEPOSITOR" {
-		err = repository.DB.Table("transactions").Select("transactions.transaction_id, transactions.user_id, players.player_name, players.player_id, bank_players.bank_name as bank_player_name, bank_players.account_number as account_number_player, transactions.bank_id, banks.bank_name, banks.account_number as account_number_bank, transactions.type_id, type_transactions.type_transaction, transactions.ammount, transactions.admin_fee, transactions.last_balance_coin, transactions.last_balance_bank,  transactions.status, users.username as created_by, transactions.created_at, transactions.updated_at").Joins("inner join banks on banks.bank_id = transactions.bank_id").Joins("inner join type_transactions on type_transactions.type_id = transactions.type_id").Joins("inner join users on users.user_id = transactions.user_id").Joins("inner join players on players.player_id = transactions.player_id").Joins("inner join bank_players on bank_players.bank_player_id = transactions.bank_player_id").Where("DATE(transactions.created_at) >= ? AND DATE(transactions.created_at) <= ? AND type_transaction IN ('DEPOSIT', 'BONUS')", dateFrom, dateTo).Order("transactions.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&trx).Error
+		err = repository.DB.Table("transactions").Select("transactions.transaction_id, transactions.user_id, players.player_name, players.player_id, bank_players.bank_name as bank_player_name, bank_players.account_number as account_number_player, transactions.bank_id, banks.bank_name, banks.account_number as account_number_bank, transactions.type_id, type_transactions.type_transaction, transactions.ammount, transactions.admin_fee, transactions.last_balance_coin, transactions.last_balance_bank,  transactions.status, users.username as created_by, transactions.created_at, transactions.updated_at").Joins("inner join banks on banks.bank_id = transactions.bank_id").Joins("inner join type_transactions on type_transactions.type_id = transactions.type_id").Joins("inner join users on users.user_id = transactions.user_id").Joins("left join players on players.player_id = transactions.player_id").Joins("left join bank_players on bank_players.bank_player_id = transactions.bank_player_id").Where("DATE(transactions.created_at) >= ? AND DATE(transactions.created_at) <= ? AND type_transaction IN ('DEPOSIT', 'BONUS')", dateFrom, dateTo).Order("transactions.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&trx).Error
 	}
 
 	if roleName == "WITHDRAWER" {
-		err = repository.DB.Table("transactions").Select("transactions.transaction_id, transactions.user_id, players.player_name, players.player_id, bank_players.bank_name as bank_player_name, bank_players.account_number as account_number_player, transactions.bank_id, banks.bank_name, banks.account_number as account_number_bank, transactions.type_id, type_transactions.type_transaction, transactions.ammount, transactions.admin_fee, transactions.last_balance_coin, transactions.last_balance_bank, transactions.status, users.username as created_by, transactions.created_at, transactions.updated_at").Joins("inner join banks on banks.bank_id = transactions.bank_id").Joins("inner join type_transactions on type_transactions.type_id = transactions.type_id").Joins("inner join users on users.user_id = transactions.user_id").Joins("inner join players on players.player_id = transactions.player_id").Joins("inner join bank_players on bank_players.bank_player_id = transactions.bank_player_id").Where("DATE(transactions.created_at) >= ? AND DATE(transactions.created_at) <= ? AND type_transaction = ?", dateFrom, dateTo, "WITHDRAW").Order("transactions.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&trx).Error
+		err = repository.DB.Table("transactions").Select("transactions.transaction_id, transactions.user_id, players.player_name, players.player_id, bank_players.bank_name as bank_player_name, bank_players.account_number as account_number_player, transactions.bank_id, banks.bank_name, banks.account_number as account_number_bank, transactions.type_id, type_transactions.type_transaction, transactions.ammount, transactions.admin_fee, transactions.last_balance_coin, transactions.last_balance_bank, transactions.status, users.username as created_by, transactions.created_at, transactions.updated_at").Joins("inner join banks on banks.bank_id = transactions.bank_id").Joins("inner join type_transactions on type_transactions.type_id = transactions.type_id").Joins("inner join users on users.user_id = transactions.user_id").Joins("left join players on players.player_id = transactions.player_id").Joins("left join bank_players on bank_players.bank_player_id = transactions.bank_player_id").Where("DATE(transactions.created_at) >= ? AND DATE(transactions.created_at) <= ? AND type_transaction = ?", dateFrom, dateTo, "WITHDRAW").Order("transactions.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&trx).Error
 	}
 
 	helper.PanicIfError(err)
@@ -122,7 +122,7 @@ func (repository *TransactionRepositoryImpl) GetDetailTransaction(id string) (*e
 	return &trx, nil
 }
 
-func (repository *TransactionRepositoryImpl) UpdateTransaction(transactionID string, playerID string, bankPlayerID string, status string, balanceCoin float32) (*string, error) {
+func (repository *TransactionRepositoryImpl) UpdateTransaction(transactionID string, playerID string, bankPlayerID string, status string, balanceCoin float32) (string, error) {
 	trx := entity.Transaction{}
 	coin := entity.Coin{}
 
@@ -135,15 +135,15 @@ func (repository *TransactionRepositoryImpl) UpdateTransaction(transactionID str
 
 	if err := tx.Model(&coin).Where("coin_name = ?", "SALJU 88").Updates(map[string]interface{}{"balance": balanceCoin, "updated_at": time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
 		tx.Rollback()
-		return nil, err
+		return "", err
 	}
 
 	if err := tx.Model(&trx).Where("transaction_id = ?", transactionID).Updates(entity.Transaction{PlayerID: playerID, BankPlayerID: bankPlayerID, Status: status, UpdatedAt: time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
 		tx.Rollback()
-		return nil, err
+		return "", err
 	}
 
 	tx.Commit()
 
-	return &transactionID, nil
+	return transactionID, nil
 }
