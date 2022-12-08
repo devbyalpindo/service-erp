@@ -43,7 +43,6 @@ func (usecase *UserUsecaseImpl) AddUser(body dto.UserAdd) dto.Response {
 			}
 			return helper.ResponseError("failed", out, 400)
 		}
-
 	}
 
 	checkUser := usecase.UserRepository.CheckExistUser(body.Username)
@@ -68,6 +67,7 @@ func (usecase *UserUsecaseImpl) AddUser(body dto.UserAdd) dto.Response {
 		Password:    encryptPwd,
 		PhoneNumber: body.PhoneNumber,
 		RoleID:      checkRole.RoleID,
+		Status:      "ACTIVE",
 		CreatedAt:   time.Now().Format("2006-01-02 15:04:05"),
 		UpdatedAt:   time.Now().Format("2006-01-02 15:04:05"),
 	}
