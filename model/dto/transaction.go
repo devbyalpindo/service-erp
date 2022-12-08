@@ -33,8 +33,11 @@ type UpdateTransactionPending struct {
 }
 
 type TransactionWithTotal struct {
-	Total       int64 `json:"total"`
-	Transaction []entity.TransactionJoin
+	Total         int64   `json:"total"`
+	TotalDeposit  float32 `json:"total_deposit"`
+	TotalWithdraw float32 `json:"total_withdraw"`
+	TotalBonus    float32 `json:"total_bonus"`
+	Transaction   []entity.TransactionJoin
 }
 
 type TransactionJoin struct {

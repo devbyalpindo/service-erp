@@ -142,8 +142,8 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trx}, 201)
 }
 
-func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit int, offset int, dateFrom string, dateTo string) dto.Response {
-	trxList, err := usecase.TrxRepository.GetAllTransaction(roleName, limit, offset, dateFrom, dateTo)
+func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit int, offset int, dateFrom string, dateTo string, types string) dto.Response {
+	trxList, err := usecase.TrxRepository.GetAllTransaction(roleName, limit, offset, dateFrom, dateTo, types)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return helper.ResponseError("failed", "Data not found", 404)
 	} else if err != nil {
@@ -178,6 +178,9 @@ func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit 
 
 	var result map[string]any = make(map[string]any)
 	result["total"] = trxList.Total
+	result["total_deposit"] = trxList.TotalDeposit
+	result["total_withdraw"] = trxList.TotalWithdraw
+	result["total_bonus"] = trxList.TotalBonus
 	result["transaction"] = response
 
 	return helper.ResponseSuccess("ok", nil, result, 200)
