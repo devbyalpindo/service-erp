@@ -4,6 +4,7 @@ import (
 	"erp-service/config"
 	"erp-service/delivery/activity_log_delivery"
 	"erp-service/delivery/bank_delivery"
+	"erp-service/delivery/bonus_delivery"
 	"erp-service/delivery/coin_delivery"
 	"erp-service/delivery/dashboard_delivery"
 	"erp-service/delivery/player_delivery"
@@ -13,6 +14,7 @@ import (
 	"erp-service/middleware"
 	"erp-service/repository/activity_log_repository"
 	"erp-service/repository/bank_repository"
+	"erp-service/repository/bonus_repository"
 	"erp-service/repository/coin_repository"
 	"erp-service/repository/dashboard_repository"
 	"erp-service/repository/player_repository"
@@ -21,6 +23,7 @@ import (
 	"erp-service/repository/user_repository"
 	"erp-service/usecase/activity_log_usecase"
 	"erp-service/usecase/bank_usecase"
+	"erp-service/usecase/bonus_usecase"
 	"erp-service/usecase/coin_usecase"
 	"erp-service/usecase/dashboard_usecase"
 	"erp-service/usecase/jwt_usecase"
@@ -51,6 +54,10 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	bankRepository := bank_repository.NewBankRepository(mysqlConn)
 	bankUsecase := bank_usecase.NewBankUsecase(bankRepository, validate)
 	bankDelivery := bank_delivery.NewBankDelivery(bankUsecase, logUsecase)
+
+	bonusRepository := bonus_repository.NewBonusRepository(mysqlConn)
+	bonusUsecase := bonus_usecase.NewBonusUsecase(bonusRepository, validate)
+	bonusDelivery := bonus_delivery.NewBonusDelivery(bonusUsecase, logUsecase)
 
 	coinRepository := coin_repository.NewCoinRepository(mysqlConn)
 	coinUsecase := coin_usecase.NewCoinUsecase(coinRepository, validate)
@@ -105,6 +112,10 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		//coin
 		userRoute.GET("/api/coin", coinDelivery.GetCoin)
 		userRoute.PUT("/api/coin-balance", coinDelivery.UpdateCoinBalance)
+
+		//bonus
+		userRoute.GET("/api/bonus", bonusDelivery.GetAllBonus)
+		userRoute.POST("/api/bonus", bonusDelivery.AddBonus)
 	}
 
 	adminRoute := router.Group("/")
