@@ -36,6 +36,7 @@ func (repository *TransactionRepositoryImpl) AddTransaction(trx *entity.Transact
 		BankID:         trx.BankID,
 		Type:           typeTrx,
 		Ammount:        trx.Ammount,
+		LastBalance:    balanceBank,
 		Description:    desc,
 		CreatedAt:      time.Now().Format("2006-01-02 15:04:05"),
 	}

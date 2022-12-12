@@ -162,7 +162,7 @@ func (usecase *BankUsecaseImpl) UpdateBankBalance(body dto.BankUpdateBalance) dt
 		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	bankID, err := usecase.BankRepository.UpdateBalanceBank(payloadBank, body.Types)
+	bankID, lastBalance, err := usecase.BankRepository.UpdateBalanceBank(payloadBank, body.Types)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return helper.ResponseError("failed", err.Error(), 404)
 	}
@@ -190,6 +190,7 @@ func (usecase *BankUsecaseImpl) UpdateBankBalance(body dto.BankUpdateBalance) dt
 		BankID:         body.BankID,
 		Type:           typeMutation,
 		Ammount:        body.Balance,
+		LastBalance:    lastBalance,
 		Description:    desc,
 		CreatedAt:      time.Now().Format("2006-01-02 15:04:05"),
 	}

@@ -5,6 +5,7 @@ type MutationBank struct {
 	BankID         string  `json:"bank_id"`
 	Type           string  `json:"type"`
 	Ammount        float32 `json:"ammount"`
+	LastBalance    float32 `json:"last_balance"`
 	Description    string  `json:"description"`
 	CreatedAt      string  `json:"created_at"`
 }
