@@ -57,7 +57,7 @@ func (repository *BankRepositoryImpl) UpdateBank(id string, bank *entity.Bank) (
 	return &id, nil
 }
 
-func (repository *BankRepositoryImpl) UpdateBalanceBank(bank *entity.Bank, types string) (*string, float32, error) {
+func (repository *BankRepositoryImpl) UpdateBalanceBank(bank *entity.Bank, types string) (*string, float64, error) {
 	bankResult := entity.Bank{}
 	result := repository.DB.Where("bank_id = ?", bank.BankID).Find(&bankResult)
 	if result.RowsAffected == 0 {
@@ -86,7 +86,7 @@ func (repository *BankRepositoryImpl) UpdateBalanceBank(bank *entity.Bank, types
 	return &bank.BankID, balance, nil
 }
 
-func (repository *BankRepositoryImpl) TransferToBank(idFrom string, balanceBankFrom float32, idBankTo string, balanceBankTo float32, ammount float32) (*string, error) {
+func (repository *BankRepositoryImpl) TransferToBank(idFrom string, balanceBankFrom float64, idBankTo string, balanceBankTo float64, ammount float64) (*string, error) {
 	bank := entity.Bank{}
 	mutationBank := []entity.MutationBank{
 		{

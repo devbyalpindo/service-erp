@@ -17,6 +17,7 @@ type AddPlayer struct {
 	PlayerID      string `validate:"required" json:"player_id"`
 	PlayerName    string `validate:"required" json:"player_name"`
 	BankName      string `validate:"required" json:"bank_name"`
+	AccountName   string `validate:"required" json:"account_name"`
 	AccountNumber string `validate:"required" json:"account_number"`
 	Category      string `validate:"required" json:"category"`
 }

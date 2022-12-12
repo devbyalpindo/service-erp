@@ -77,6 +77,7 @@ func (usecase *PlayerUsecaseImpl) AddPlayer(body dto.AddPlayer) dto.Response {
 		BankPlayerID:  createID,
 		PlayerID:      body.PlayerID,
 		BankName:      body.BankName,
+		AccountName:   body.AccountName,
 		AccountNumber: body.AccountNumber,
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 	}
@@ -120,6 +121,7 @@ func (usecase *PlayerUsecaseImpl) AddPlayerBank(body dto.AddBankPlayer) dto.Resp
 		BankPlayerID:  createID,
 		PlayerID:      body.PlayerID,
 		BankName:      body.BankName,
+		AccountName:   body.AccountName,
 		AccountNumber: body.AccountNumber,
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 	}

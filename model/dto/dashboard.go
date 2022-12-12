@@ -10,18 +10,19 @@ type Dashboard struct {
 }
 
 type TransactionValue struct {
-	Total float32 `json:"total"`
-	Value string  `json:"value"`
+	Total        float64 `json:"total"`
+	Value        string  `json:"value"`
+	TotalAmmount float64 `json:"total_ammount"`
 }
 
 type TopPlayerDeposit struct {
 	PlayerID     string  `json:"player_id"`
 	PlayerName   string  `json:"player_name"`
-	TotalDeposit float32 `json:"total_deposit"`
+	TotalDeposit float64 `json:"total_deposit"`
 }
 
 type TopPlayerWithdraw struct {
 	PlayerID      string  `json:"player_id"`
 	PlayerName    string  `json:"player_name"`
-	TotalWithdraw float32 `json:"total_withdraw"`
+	TotalWithdraw float64 `json:"total_withdraw"`
 }

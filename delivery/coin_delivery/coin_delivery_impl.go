@@ -5,11 +5,11 @@ import (
 	"erp-service/model/dto"
 	"erp-service/usecase/activity_log_usecase"
 	"erp-service/usecase/coin_usecase"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/paimanbandi/rupiah"
 )
 
 type CoinDeliveryImpl struct {
@@ -74,7 +74,7 @@ func (res *CoinDeliveryImpl) UpdateCoinBalance(c *gin.Context) {
 		logBody = dto.ActivityLog{
 			UserID:        userID.(string),
 			IsTransaction: false,
-			Description:   userName.(string) + " telah mengurangi saldo coin sebesar " + fmt.Sprintf("%.2f", coinRequest.Balance),
+			Description:   userName.(string) + " telah mengurangi saldo coin sebesar " + rupiah.FormatFloat64ToRp(coinRequest.Balance),
 			CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 		}
 	}
@@ -83,7 +83,7 @@ func (res *CoinDeliveryImpl) UpdateCoinBalance(c *gin.Context) {
 		logBody = dto.ActivityLog{
 			UserID:        userID.(string),
 			IsTransaction: false,
-			Description:   userName.(string) + " telah menambah saldo coin sebesar " + fmt.Sprintf("%.2f", coinRequest.Balance),
+			Description:   userName.(string) + " telah menambah saldo coin sebesar " + rupiah.FormatFloat64ToRp(coinRequest.Balance),
 			CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 		}
 	}

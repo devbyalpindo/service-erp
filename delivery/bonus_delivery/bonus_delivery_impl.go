@@ -5,12 +5,12 @@ import (
 	"erp-service/model/dto"
 	"erp-service/usecase/activity_log_usecase"
 	"erp-service/usecase/bonus_usecase"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/paimanbandi/rupiah"
 )
 
 type BonusDeliveryImpl struct {
@@ -42,7 +42,7 @@ func (res *BonusDeliveryImpl) AddBonus(c *gin.Context) {
 	logBody := dto.ActivityLog{
 		UserID:        userID.(string),
 		IsTransaction: false,
-		Description:   userName.(string) + " telah menambahkan bonus " + bonusReq.Type + " dengan jumlah " + fmt.Sprintf("%.2f", bonusReq.Ammount),
+		Description:   userName.(string) + " telah menambahkan bonus " + bonusReq.Type + " dengan jumlah " + rupiah.FormatFloat64ToRp(bonusReq.Ammount),
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 	}
 

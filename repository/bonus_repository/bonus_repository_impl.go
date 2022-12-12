@@ -35,7 +35,7 @@ func (repository *BonusRepositoryImpl) GetAllBonus(types string, dateFrom string
 		}
 		return resultError, gorm.ErrRecordNotFound
 	}
-	var totalBonus float32
+	var totalBonus float64
 
 	for _, item := range bonus {
 		totalBonus += item.Ammount

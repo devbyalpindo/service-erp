@@ -19,7 +19,7 @@ func NewTransactionRepository(DB *gorm.DB) TransactionRepository {
 	return &TransactionRepositoryImpl{DB}
 }
 
-func (repository *TransactionRepositoryImpl) AddTransaction(trx *entity.Transaction, balanceCoin float32, balanceBank float32, typeTrx string) (string, error) {
+func (repository *TransactionRepositoryImpl) AddTransaction(trx *entity.Transaction, balanceCoin float64, balanceBank float64, typeTrx string) (string, error) {
 	bank := entity.Bank{}
 	coin := entity.Coin{}
 	var desc string
@@ -111,9 +111,9 @@ func (repository *TransactionRepositoryImpl) GetAllTransaction(roleName string, 
 
 	helper.PanicIfError(err)
 
-	var totalDeposit float32
-	var totalWithdraw float32
-	var totalBonus float32
+	var totalDeposit float64
+	var totalWithdraw float64
+	var totalBonus float64
 
 	for _, item := range trx {
 		switch item.TypeTransaction {
@@ -162,7 +162,7 @@ func (repository *TransactionRepositoryImpl) GetDetailTransaction(id string) (*e
 	return &trx, nil
 }
 
-func (repository *TransactionRepositoryImpl) UpdateTransaction(transactionID string, playerID string, bankPlayerID string, status string, balanceCoin float32) (string, error) {
+func (repository *TransactionRepositoryImpl) UpdateTransaction(transactionID string, playerID string, bankPlayerID string, status string, balanceCoin float64) (string, error) {
 	trx := entity.Transaction{}
 	coin := entity.Coin{}
 

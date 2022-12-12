@@ -6,7 +6,7 @@ type Bank struct {
 	AccountName   string  `json:"account_name"`
 	Category      string  `json:"category"`
 	AccountNumber string  `json:"account_number"`
-	Balance       float32 `json:"balance"`
+	Balance       float64 `json:"balance"`
 	Active        *bool   `json:"active"`
 	Ibanking      string  `json:"ibanking"`
 	CodeAccess    string  `json:"code_access"`
@@ -18,7 +18,7 @@ type BankAdd struct {
 	AccountName   string  `validate:"required" json:"account_name"`
 	Category      string  `validate:"required" json:"category"`
 	AccountNumber string  `validate:"required" json:"account_number"`
-	Balance       float32 `validate:"required" json:"balance"`
+	Balance       float64 `validate:"required" json:"balance"`
 	Active        *bool   `validate:"required" json:"active"`
 	Ibanking      string  `json:"ibanking"`
 	CodeAccess    string  `json:"code_access"`
@@ -39,14 +39,14 @@ type BankUpdate struct {
 type BankUpdateBalance struct {
 	BankID  string  `validate:"required" json:"bank_id"`
 	Types   string  `validate:"required" json:"type"`
-	Balance float32 `validate:"required" json:"balance"`
+	Balance float64 `validate:"required" json:"balance"`
 }
 
 type BankTransfer struct {
 	FromBankID string  `validate:"required" json:"from_bank_id"`
 	ToBankID   string  `validate:"required" json:"to_bank_id"`
-	Balance    float32 `validate:"min=0" json:"balance"`
-	AdminFee   float32 `validate:"min=0" json:"admin_fee"`
+	Balance    float64 `validate:"min=0" json:"balance"`
+	AdminFee   float64 `validate:"min=0" json:"admin_fee"`
 }
 
 type GetMutationBank struct {

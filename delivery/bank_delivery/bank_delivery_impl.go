@@ -5,11 +5,11 @@ import (
 	"erp-service/model/dto"
 	"erp-service/usecase/activity_log_usecase"
 	"erp-service/usecase/bank_usecase"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/paimanbandi/rupiah"
 )
 
 type BankDeliveryImpl struct {
@@ -129,7 +129,7 @@ func (res *BankDeliveryImpl) UpdateBankBalance(c *gin.Context) {
 		logBody = dto.ActivityLog{
 			UserID:        userID.(string),
 			IsTransaction: false,
-			Description:   userName.(string) + " telah mengurangi saldo bank " + bankRequest.BankID + " sebesar " + fmt.Sprintf("%.2f", bankRequest.Balance),
+			Description:   userName.(string) + " telah mengurangi saldo bank " + bankRequest.BankID + " sebesar " + rupiah.FormatFloat64ToRp(bankRequest.Balance),
 			CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 		}
 	}
@@ -138,7 +138,7 @@ func (res *BankDeliveryImpl) UpdateBankBalance(c *gin.Context) {
 		logBody = dto.ActivityLog{
 			UserID:        userID.(string),
 			IsTransaction: false,
-			Description:   userName.(string) + " telah menambah saldo bank " + bankRequest.BankID + " sebesar " + fmt.Sprintf("%.2f", bankRequest.Balance),
+			Description:   userName.(string) + " telah menambah saldo bank " + bankRequest.BankID + " sebesar " + rupiah.FormatFloat64ToRp(bankRequest.Balance),
 			CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 		}
 	}
@@ -172,7 +172,7 @@ func (res *BankDeliveryImpl) TransferToBank(c *gin.Context) {
 	logBody := dto.ActivityLog{
 		UserID:        userID.(string),
 		IsTransaction: false,
-		Description:   userName.(string) + " telah transfer saldo bank dari bank " + bankRequest.FromBankID + " ke bank " + bankRequest.ToBankID + " sebesar " + fmt.Sprintf("%.2f", bankRequest.Balance),
+		Description:   userName.(string) + " telah transfer saldo bank dari bank " + bankRequest.FromBankID + " ke bank " + bankRequest.ToBankID + " sebesar " + rupiah.FormatFloat64ToRp(bankRequest.Balance),
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 	}
 

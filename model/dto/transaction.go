@@ -9,10 +9,10 @@ type Transaction struct {
 	BankPlayerID    string  `json:"bank_player_id"`
 	BankID          string  `json:"bank_id"`
 	TypeID          string  `json:"type_id"`
-	Ammount         float32 `json:"ammount"`
-	AdminFee        float32 `json:"admin_fee"`
-	LastBalanceCoin float32 `json:"last_balance_coin"`
-	LastBalanceBank float32 `json:"last_balance_bank"`
+	Ammount         float64 `json:"ammount"`
+	AdminFee        float64 `json:"admin_fee"`
+	LastBalanceCoin float64 `json:"last_balance_coin"`
+	LastBalanceBank float64 `json:"last_balance_bank"`
 	CreatedAt       string  `json:"created_at"`
 	UpdatedAt       string  `json:"updated_at"`
 }
@@ -21,8 +21,8 @@ type AddTransaction struct {
 	BankPlayerID string  `json:"bank_player_id"`
 	BankID       string  `validate:"required" json:"bank_id"`
 	TypeID       string  `validate:"required" json:"type_id"`
-	Ammount      float32 `validate:"min=0" json:"ammount"`
-	AdminFee     float32 `validate:"min=0" json:"admin_fee"`
+	Ammount      float64 `validate:"min=0" json:"ammount"`
+	AdminFee     float64 `validate:"min=0" json:"admin_fee"`
 	Status       string  `validate:"required" json:"status"`
 }
 
@@ -34,9 +34,9 @@ type UpdateTransactionPending struct {
 
 type TransactionWithTotal struct {
 	Total         int64   `json:"total"`
-	TotalDeposit  float32 `json:"total_deposit"`
-	TotalWithdraw float32 `json:"total_withdraw"`
-	TotalBonus    float32 `json:"total_bonus"`
+	TotalDeposit  float64 `json:"total_deposit"`
+	TotalWithdraw float64 `json:"total_withdraw"`
+	TotalBonus    float64 `json:"total_bonus"`
 	Transaction   []entity.TransactionJoin
 }
 
@@ -52,10 +52,10 @@ type TransactionJoin struct {
 	AccountNumberBank   string  `json:"account_number_bank"`
 	TypeID              string  `json:"type_id"`
 	TypeTransaction     string  `json:"type_transaction"`
-	Ammount             float32 `json:"ammount"`
-	AdminFee            float32 `json:"admin_fee"`
-	LastBalanceCoin     float32 `json:"last_balance_coin"`
-	LastBalanceBank     float32 `json:"last_balance_bank"`
+	Ammount             float64 `json:"ammount"`
+	AdminFee            float64 `json:"admin_fee"`
+	LastBalanceCoin     float64 `json:"last_balance_coin"`
+	LastBalanceBank     float64 `json:"last_balance_bank"`
 	Status              string  `json:"status"`
 	CreatedBy           string  `json:"created_by"`
 	CreatedAt           string  `json:"created_at"`

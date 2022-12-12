@@ -115,8 +115,8 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 		}
 	}
 
-	var bankBalance float32
-	var coinBalance float32
+	var bankBalance float64
+	var coinBalance float64
 	var typeMutation string
 
 	switch types.TypeTransaction {
