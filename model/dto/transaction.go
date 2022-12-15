@@ -13,6 +13,7 @@ type Transaction struct {
 	AdminFee        float64 `json:"admin_fee"`
 	LastBalanceCoin float64 `json:"last_balance_coin"`
 	LastBalanceBank float64 `json:"last_balance_bank"`
+	Note            string  `json:"note"`
 	CreatedAt       string  `json:"created_at"`
 	UpdatedAt       string  `json:"updated_at"`
 }
@@ -24,6 +25,7 @@ type AddTransaction struct {
 	Ammount      float64 `validate:"min=0" json:"ammount"`
 	AdminFee     float64 `validate:"min=0" json:"admin_fee"`
 	Status       string  `validate:"required" json:"status"`
+	Note         string  `json:"note"`
 }
 
 type UpdateTransactionPending struct {
@@ -57,6 +59,7 @@ type TransactionJoin struct {
 	LastBalanceCoin     float64 `json:"last_balance_coin"`
 	LastBalanceBank     float64 `json:"last_balance_bank"`
 	Status              string  `json:"status"`
+	Note                string  `json:"note"`
 	CreatedBy           string  `json:"created_by"`
 	CreatedAt           string  `json:"created_at"`
 	UpdatedAt           string  `json:"updated_at"`

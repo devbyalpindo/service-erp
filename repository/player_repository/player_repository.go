@@ -10,4 +10,6 @@ type PlayerRepository interface {
 	GetPlayerBankByID(string) (*entity.BankPlayer, error)
 	AddPlayer(*entity.Player) (*string, error)
 	AddBankPlayer(*entity.BankPlayer) (*string, error)
+	UpdatePlayer(*entity.Player) (*string, error)
+	UpdateBankPlayer(*entity.BankPlayer) (*string, error)
 }

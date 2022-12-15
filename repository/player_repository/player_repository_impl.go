@@ -3,6 +3,7 @@ package player_repository
 import (
 	"erp-service/helper"
 	"erp-service/model/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -62,4 +63,24 @@ func (repository *PlayerRepositoryImpl) AddBankPlayer(bankPlayer *entity.BankPla
 	}
 
 	return &bankPlayer.BankPlayerID, nil
+}
+
+func (repository *PlayerRepositoryImpl) UpdatePlayer(body *entity.Player) (*string, error) {
+
+	result := repository.DB.Model(&body).Where("player_id = ?", body.PlayerID).Updates(entity.Player{PlayerName: body.PlayerName, UpdatedAt: time.Now().Format("2006-01-02 15:04:05")})
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return &body.PlayerID, nil
+}
+
+func (repository *PlayerRepositoryImpl) UpdateBankPlayer(body *entity.BankPlayer) (*string, error) {
+
+	result := repository.DB.Model(&body).Where("bank_player_id = ?", body.BankPlayerID).Updates(entity.BankPlayer{BankName: body.BankName, AccountName: body.AccountName, AccountNumber: body.AccountNumber, Category: body.Category, UpdatedAt: time.Now().Format("2006-01-02 15:04:05")})
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return &body.BankPlayerID, nil
 }

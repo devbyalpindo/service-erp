@@ -127,3 +127,13 @@ func (res *UserDeliveryImpl) ChangePassword(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, response)
 }
+
+func (res *UserDeliveryImpl) ResetPassword(c *gin.Context) {
+	id := c.Param("id")
+	response := res.usecase.ResetPassword(id)
+	if response.Status != "ok" {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+	c.JSON(http.StatusOK, response)
+}

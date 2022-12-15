@@ -9,4 +9,5 @@ type UserUsecase interface {
 	LoginUser(dto.UserLogin) dto.Response
 	DeleteUsers(id string) dto.Response
 	ChangePassword(dto.UserChangePassword) dto.Response
+	ResetPassword(id string) dto.Response
 }

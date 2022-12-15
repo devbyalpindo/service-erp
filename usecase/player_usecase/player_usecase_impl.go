@@ -131,3 +131,70 @@ func (usecase *PlayerUsecaseImpl) AddPlayerBank(body dto.AddBankPlayer) dto.Resp
 
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": idBank}, 201)
 }
+
+func (usecase *PlayerUsecaseImpl) UpdatePlayer(body dto.UpdatePlayer) dto.Response {
+	err := usecase.Validate.Struct(body)
+
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]dto.CustomMessageError, len(ve))
+			for i, fe := range ve {
+				out[i] = dto.CustomMessageError{
+					Field:    fe.Field(),
+					Messsage: helper.MessageError(fe.Tag()),
+				}
+			}
+			return helper.ResponseError("failed", out, 400)
+		}
+
+	}
+
+	payloadPlayer := &entity.Player{
+		PlayerID:   body.PlayerID,
+		PlayerName: body.PlayerName,
+	}
+
+	playerID, err := usecase.PlayerRepository.UpdatePlayer(payloadPlayer)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+	helper.PanicIfError(err)
+
+	return helper.ResponseSuccess("ok", nil, map[string]any{"player_id": playerID}, 200)
+}
+
+func (usecase *PlayerUsecaseImpl) UpdateBankPlayer(body dto.UpdateBankPlayer) dto.Response {
+	err := usecase.Validate.Struct(body)
+
+	if err != nil {
+		var ve validator.ValidationErrors
+		if errors.As(err, &ve) {
+			out := make([]dto.CustomMessageError, len(ve))
+			for i, fe := range ve {
+				out[i] = dto.CustomMessageError{
+					Field:    fe.Field(),
+					Messsage: helper.MessageError(fe.Tag()),
+				}
+			}
+			return helper.ResponseError("failed", out, 400)
+		}
+
+	}
+
+	payloadBankPlayer := &entity.BankPlayer{
+		BankPlayerID:  body.BankPlayerID,
+		BankName:      body.BankName,
+		AccountName:   body.AccountName,
+		AccountNumber: body.AccountNumber,
+		Category:      body.Category,
+	}
+
+	bankID, err := usecase.PlayerRepository.UpdateBankPlayer(payloadBankPlayer)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+	helper.PanicIfError(err)
+
+	return helper.ResponseSuccess("ok", nil, map[string]any{"bank_player_id": bankID}, 200)
+}

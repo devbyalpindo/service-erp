@@ -59,6 +59,7 @@ func (res *TransactionDeliveryImpl) GetAllTransaction(c *gin.Context) {
 	limit := c.Query("limit")
 	offset := c.Query("offset")
 	types := c.Query("type")
+	status := c.Query("status")
 	limits, _ := strconv.Atoi(limit)
 	offsets, _ := strconv.Atoi(offset)
 
@@ -67,7 +68,7 @@ func (res *TransactionDeliveryImpl) GetAllTransaction(c *gin.Context) {
 
 	roleName, _ := c.Get("role")
 
-	response := res.usecase.GetAllTransaction(roleName.(string), limits, offsets, dateFrom, dateTo, types)
+	response := res.usecase.GetAllTransaction(roleName.(string), limits, offsets, dateFrom, dateTo, types, status)
 	if response.StatusCode != 200 {
 		c.JSON(response.StatusCode, response)
 		return

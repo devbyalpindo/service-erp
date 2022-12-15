@@ -12,6 +12,7 @@ type Transaction struct {
 	LastBalanceCoin float64 `json:"last_balance_coin"`
 	LastBalanceBank float64 `json:"last_balance_bank"`
 	Status          string  `json:"status"`
+	Note            string  `json:"note"`
 	CreatedAt       string  `json:"created_at"`
 	UpdatedAt       string  `json:"updated_at"`
 }
@@ -33,6 +34,7 @@ type TransactionJoin struct {
 	LastBalanceCoin     float64 `json:"last_balance_coin"`
 	LastBalanceBank     float64 `json:"last_balance_bank"`
 	Status              string  `json:"status"`
+	Note                string  `json:"string"`
 	CreatedBy           string  `json:"created_by"`
 	CreatedAt           string  `json:"created_at"`
 	UpdatedAt           string  `json:"updated_at"`

@@ -111,3 +111,13 @@ func (repository *UserRepositoryImpl) ChangePassword(id string, password string)
 
 	return &id, nil
 }
+
+func (repository *UserRepositoryImpl) ResetPassword(id string, password string) (*string, error) {
+	result := repository.DB.Model(&entity.User{}).Where("user_id = ?", id).Update("password", password)
+
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return &id, nil
+}

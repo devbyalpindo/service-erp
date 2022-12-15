@@ -105,6 +105,7 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 		LastBalanceCoin: coin.Balance,
 		LastBalanceBank: bank.Balance,
 		Status:          body.Status,
+		Note:            body.Note,
 		CreatedAt:       time.Now().Format("2006-01-02 15:04:05"),
 		UpdatedAt:       time.Now().Format("2006-01-02 15:04:05"),
 	}
@@ -142,8 +143,8 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trx}, 201)
 }
 
-func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit int, offset int, dateFrom string, dateTo string, types string) dto.Response {
-	trxList, err := usecase.TrxRepository.GetAllTransaction(roleName, limit, offset, dateFrom, dateTo, types)
+func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit int, offset int, dateFrom string, dateTo string, types string, status string) dto.Response {
+	trxList, err := usecase.TrxRepository.GetAllTransaction(roleName, limit, offset, dateFrom, dateTo, types, status)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return helper.ResponseError("failed", "Data not found", 404)
 	} else if err != nil {
@@ -170,6 +171,7 @@ func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit 
 			LastBalanceCoin:     trx.LastBalanceCoin,
 			LastBalanceBank:     trx.LastBalanceBank,
 			Status:              trx.Status,
+			Note:                trx.Note,
 			CreatedBy:           trx.CreatedBy,
 			CreatedAt:           timeCreated.Format("2006-01-02 15:04:05"),
 		}

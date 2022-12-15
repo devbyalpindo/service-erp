@@ -6,4 +6,6 @@ type PlayerDelivery interface {
 	GetAllPlayer(*gin.Context)
 	AddPlayer(*gin.Context)
 	AddBankPlayer(*gin.Context)
+	UpdatePlayer(*gin.Context)
+	UpdateBankPlayer(*gin.Context)
 }

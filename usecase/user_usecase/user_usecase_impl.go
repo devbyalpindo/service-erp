@@ -192,3 +192,23 @@ func (usecase *UserUsecaseImpl) ChangePassword(body dto.UserChangePassword) dto.
 
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"user_id": id}, 200)
 }
+
+func (usecase *UserUsecaseImpl) ResetPassword(id string) dto.Response {
+	user, _, err := usecase.UserRepository.GetUserDetail(id)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", "User not found", 404)
+	}
+
+	randPassword := helper.RandomString(30)
+
+	encryptPwd, err := helper.HashPassword(randPassword)
+	helper.PanicIfError(err)
+
+	idUser, err := usecase.UserRepository.ResetPassword(user.UserID, encryptPwd)
+
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", "Failed change password", 404)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"user_id": idUser, "new_password": randPassword}, 200)
+}

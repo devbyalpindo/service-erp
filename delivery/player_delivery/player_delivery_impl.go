@@ -96,3 +96,69 @@ func (res *PlayerDeliveryImpl) AddBankPlayer(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, response)
 }
+
+func (res *PlayerDeliveryImpl) UpdatePlayer(c *gin.Context) {
+	playerRequest := dto.UpdatePlayer{}
+	if err := c.ShouldBindJSON(&playerRequest); err != nil {
+		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	response := res.usecase.UpdatePlayer(playerRequest)
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	userName, _ := c.Get("username")
+
+	logBody := dto.ActivityLog{
+		UserID:        userID.(string),
+		IsTransaction: false,
+		Description:   userName.(string) + " telah merubah data player " + playerRequest.PlayerID,
+		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	_, errors := res.log.AddActivity(logBody)
+
+	if errors != nil {
+		helper.PanicIfError(errors)
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (res *PlayerDeliveryImpl) UpdateBankPlayer(c *gin.Context) {
+	playerRequest := dto.UpdateBankPlayer{}
+	if err := c.ShouldBindJSON(&playerRequest); err != nil {
+		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	response := res.usecase.UpdateBankPlayer(playerRequest)
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	userName, _ := c.Get("username")
+
+	logBody := dto.ActivityLog{
+		UserID:        userID.(string),
+		IsTransaction: false,
+		Description:   userName.(string) + " telah merubah data bank player " + playerRequest.BankPlayerID,
+		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	_, errors := res.log.AddActivity(logBody)
+
+	if errors != nil {
+		helper.PanicIfError(errors)
+	}
+
+	c.JSON(http.StatusOK, response)
+}

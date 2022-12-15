@@ -6,4 +6,6 @@ type PlayerUsecase interface {
 	GetAllPlayer() dto.Response
 	AddPlayer(dto.AddPlayer) dto.Response
 	AddPlayerBank(dto.AddBankPlayer) dto.Response
+	UpdatePlayer(dto.UpdatePlayer) dto.Response
+	UpdateBankPlayer(dto.UpdateBankPlayer) dto.Response
 }

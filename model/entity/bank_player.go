@@ -8,4 +8,5 @@ type BankPlayer struct {
 	AccountNumber string `json:"account_number"`
 	Category      string `json:"category"`
 	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
 }

@@ -9,4 +9,5 @@ type UserDelivery interface {
 	UserLogin(*gin.Context)
 	DeleteUsers(*gin.Context)
 	ChangePassword(*gin.Context)
+	ResetPassword(*gin.Context)
 }
