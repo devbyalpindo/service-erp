@@ -4,6 +4,7 @@ import (
 	"erp-service/helper"
 	"erp-service/model/dto"
 	"erp-service/model/entity"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -50,10 +51,60 @@ func (repository *BonusRepositoryImpl) GetAllBonus(types string, dateFrom string
 	return result, nil
 }
 
-func (repository *BonusRepositoryImpl) AddBonus(bonus *entity.Bonus) (*string, error) {
-	if err := repository.DB.Create(&bonus).Error; err != nil {
+func (repository *BonusRepositoryImpl) AddBonus(bonus *entity.Bonus, balanceCoin float64) (*string, error) {
+	tx := repository.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Create(&bonus).Error; err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 
+	if err := tx.Model(&entity.Coin{}).Where("coin_name = ?", "SALJU 88").Updates(map[string]interface{}{"balance": balanceCoin, "updated_at": time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	tx.Commit()
+
 	return &bonus.BonusID, nil
+}
+
+func (repository *BonusRepositoryImpl) GetBonusByID(id string) (*entity.Bonus, error) {
+	bonus := entity.Bonus{}
+	result := repository.DB.Where("bonus_id = ?", id).Find(&bonus)
+
+	if result.RowsAffected == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return &bonus, nil
+}
+
+func (repository *BonusRepositoryImpl) UpdateBonus(id string, types string, ammount float64, balanceCoin float64) (*string, error) {
+
+	tx := repository.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Model(&entity.Coin{}).Where("coin_name = ?", "SALJU 88").Updates(map[string]interface{}{"balance": balanceCoin, "updated_at": time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	if err := tx.Model(&entity.Bonus{}).Where("bonus_id = ?", id).Updates(map[string]interface{}{"type": types, "ammount": ammount, "updated_at": time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	tx.Commit()
+
+	return &id, nil
 }

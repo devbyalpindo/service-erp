@@ -7,5 +7,7 @@ import (
 
 type BonusRepository interface {
 	GetAllBonus(types string, dateFrom string, dateTo string, limit int, offset int) (dto.BonusWithTotal, error)
-	AddBonus(*entity.Bonus) (*string, error)
+	GetBonusByID(id string) (*entity.Bonus, error)
+	AddBonus(bonus *entity.Bonus, balanceCoin float64) (*string, error)
+	UpdateBonus(id string, types string, ammount float64, balanceCoin float64) (*string, error)
 }

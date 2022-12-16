@@ -73,3 +73,37 @@ func (res *BonusDeliveryImpl) GetAllBonus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (res *BonusDeliveryImpl) UpdateBonus(c *gin.Context) {
+	id := c.Param("id")
+	bonusReq := dto.BonusAdd{}
+	if err := c.ShouldBindJSON(&bonusReq); err != nil {
+		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	response := res.usecase.UpdateBonus(id, bonusReq)
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	userName, _ := c.Get("username")
+
+	logBody := dto.ActivityLog{
+		UserID:        userID.(string),
+		IsTransaction: false,
+		Description:   userName.(string) + " telah merubah bonus dengan id " + id + " dengan jumlah " + rupiah.FormatFloat64ToRp(bonusReq.Ammount),
+		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	_, errors := res.log.AddActivity(logBody)
+
+	if errors != nil {
+		helper.PanicIfError(errors)
+	}
+
+	c.JSON(http.StatusCreated, response)
+}

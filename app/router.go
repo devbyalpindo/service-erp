@@ -55,13 +55,13 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	bankUsecase := bank_usecase.NewBankUsecase(bankRepository, validate)
 	bankDelivery := bank_delivery.NewBankDelivery(bankUsecase, logUsecase)
 
-	bonusRepository := bonus_repository.NewBonusRepository(mysqlConn)
-	bonusUsecase := bonus_usecase.NewBonusUsecase(bonusRepository, validate)
-	bonusDelivery := bonus_delivery.NewBonusDelivery(bonusUsecase, logUsecase)
-
 	coinRepository := coin_repository.NewCoinRepository(mysqlConn)
 	coinUsecase := coin_usecase.NewCoinUsecase(coinRepository, validate)
 	coinDelivery := coin_delivery.NewCoinDelivery(coinUsecase, logUsecase)
+
+	bonusRepository := bonus_repository.NewBonusRepository(mysqlConn)
+	bonusUsecase := bonus_usecase.NewBonusUsecase(bonusRepository, coinRepository, validate)
+	bonusDelivery := bonus_delivery.NewBonusDelivery(bonusUsecase, logUsecase)
 
 	userRepository := user_repository.NewUserRepository(mysqlConn)
 	jwtUsecase := jwt_usecase.NewJwtUsecase(userRepository)
@@ -142,6 +142,9 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 
 		//log
 		adminRoute.GET("/api/log", logDelivery.GetActivity)
+
+		//bonus
+		userRoute.PUT("/api/bonus/:id", bonusDelivery.UpdateBonus)
 	}
 
 	return router
