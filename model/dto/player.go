@@ -28,3 +28,9 @@ type UpdatePlayer struct {
 	PlayerID   string `validate:"required" json:"player_id"`
 	PlayerName string `validate:"required" json:"player_name"`
 }
+
+type BulkInsertPlayer struct {
+	Username         string `validate:"required" json:"username"`
+	FullName         string `json:"full_Name"`
+	RegistrationDate string `json:"registration_Date"`
+}

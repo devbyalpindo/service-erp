@@ -84,3 +84,11 @@ func (repository *PlayerRepositoryImpl) UpdateBankPlayer(body *entity.BankPlayer
 
 	return &body.BankPlayerID, nil
 }
+
+func (repository *PlayerRepositoryImpl) BulkInsertPlayer(player []entity.Player) (string, error) {
+	if err := repository.DB.Create(&player).Error; err != nil {
+		return "", err
+	}
+
+	return "ok", nil
+}

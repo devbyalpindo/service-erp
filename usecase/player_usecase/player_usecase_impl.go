@@ -6,6 +6,7 @@ import (
 	"erp-service/model/entity"
 	"erp-service/repository/player_repository"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -69,6 +70,7 @@ func (usecase *PlayerUsecaseImpl) AddPlayer(body dto.AddPlayer) dto.Response {
 		PlayerID:   body.PlayerID,
 		PlayerName: body.PlayerName,
 		CreatedAt:  time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt:  time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	createID := uuid.New().String()
@@ -80,6 +82,7 @@ func (usecase *PlayerUsecaseImpl) AddPlayer(body dto.AddPlayer) dto.Response {
 		AccountName:   body.AccountName,
 		AccountNumber: body.AccountNumber,
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	player, err := usecase.PlayerRepository.AddPlayer(payloadPlayer)
@@ -106,7 +109,6 @@ func (usecase *PlayerUsecaseImpl) AddPlayerBank(body dto.AddBankPlayer) dto.Resp
 			}
 			return helper.ResponseError("failed", out, 400)
 		}
-
 	}
 	helper.PanicIfError(err)
 	createID := uuid.New().String()
@@ -124,6 +126,7 @@ func (usecase *PlayerUsecaseImpl) AddPlayerBank(body dto.AddBankPlayer) dto.Resp
 		AccountName:   body.AccountName,
 		AccountNumber: body.AccountNumber,
 		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt:     time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	idBank, err := usecase.PlayerRepository.AddBankPlayer(bankPlayer)
@@ -197,4 +200,25 @@ func (usecase *PlayerUsecaseImpl) UpdateBankPlayer(body dto.UpdateBankPlayer) dt
 	helper.PanicIfError(err)
 
 	return helper.ResponseSuccess("ok", nil, map[string]any{"bank_player_id": bankID}, 200)
+}
+
+func (usecase *PlayerUsecaseImpl) BulkInsertPlayer(body []dto.BulkInsertPlayer) dto.Response {
+	listPlayer := []entity.Player{}
+
+	for _, val := range body {
+		dates, _ := time.Parse("2006-01-02 15:04:05", val.RegistrationDate)
+		log.Println(dates)
+		payloadPlayer := entity.Player{
+			PlayerID:   val.Username,
+			PlayerName: val.FullName,
+			CreatedAt:  dates.Format("2006-01-02 15:04:05"),
+			UpdatedAt:  time.Now().Format("2006-01-02 15:04:05"),
+		}
+		listPlayer = append(listPlayer, payloadPlayer)
+	}
+
+	player, err := usecase.PlayerRepository.BulkInsertPlayer(listPlayer)
+	helper.PanicIfError(err)
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": player}, 201)
 }
