@@ -65,6 +65,7 @@ func (usecase *BonusUsecaseImpl) AddBonus(body dto.BonusAdd) dto.Response {
 		Type:      body.Type,
 		Ammount:   body.Ammount,
 		CreatedAt: time.Now().Format("2006-01-02 15:04:05"),
+		UpdatedAt: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	bonus, err := usecase.BonusRepository.AddBonus(payloadBonus, coin.Balance-payloadBonus.Ammount)
