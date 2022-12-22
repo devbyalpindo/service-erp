@@ -6,7 +6,6 @@ import (
 	"erp-service/model/entity"
 	"erp-service/repository/player_repository"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -207,10 +206,10 @@ func (usecase *PlayerUsecaseImpl) BulkInsertPlayer(body []dto.BulkInsertPlayer) 
 
 	for _, val := range body {
 		dates, _ := time.Parse("2006-01-02 15:04:05", val.RegistrationDate)
-		log.Println(dates)
 		payloadPlayer := entity.Player{
 			PlayerID:   val.Username,
 			PlayerName: val.FullName,
+			Recid:      val.Recid,
 			CreatedAt:  dates.Format("2006-01-02 15:04:05"),
 			UpdatedAt:  time.Now().Format("2006-01-02 15:04:05"),
 		}
@@ -218,6 +217,29 @@ func (usecase *PlayerUsecaseImpl) BulkInsertPlayer(body []dto.BulkInsertPlayer) 
 	}
 
 	player, err := usecase.PlayerRepository.BulkInsertPlayer(listPlayer)
+	helper.PanicIfError(err)
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": player}, 201)
+}
+
+func (usecase *PlayerUsecaseImpl) BulkInsertBankPlayer(body []dto.BulkInsertBankPlayer) dto.Response {
+	listPlayer := []entity.BankPlayer{}
+
+	for _, val := range body {
+		createID := uuid.New().String()
+		payloadPlayer := entity.BankPlayer{
+			BankPlayerID:  createID,
+			PlayerID:      val.PlayerID,
+			BankName:      val.BankName,
+			AccountName:   val.AccountName,
+			AccountNumber: val.AccountNumber,
+			CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+			UpdatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+		}
+		listPlayer = append(listPlayer, payloadPlayer)
+	}
+
+	player, err := usecase.PlayerRepository.BulkInsertBankPlayer(listPlayer)
 	helper.PanicIfError(err)
 
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": player}, 201)

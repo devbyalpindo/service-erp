@@ -9,4 +9,5 @@ type PlayerDelivery interface {
 	UpdatePlayer(*gin.Context)
 	UpdateBankPlayer(*gin.Context)
 	BulkInsertPlayer(*gin.Context)
+	BulkInsertBankPlayer(*gin.Context)
 }

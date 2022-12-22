@@ -13,4 +13,5 @@ type PlayerRepository interface {
 	UpdatePlayer(*entity.Player) (*string, error)
 	UpdateBankPlayer(*entity.BankPlayer) (*string, error)
 	BulkInsertPlayer([]entity.Player) (string, error)
+	BulkInsertBankPlayer([]entity.BankPlayer) (string, error)
 }

@@ -179,3 +179,20 @@ func (res *PlayerDeliveryImpl) BulkInsertPlayer(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, response)
 }
+
+func (res *PlayerDeliveryImpl) BulkInsertBankPlayer(c *gin.Context) {
+	playerReq := []dto.BulkInsertBankPlayer{}
+	if err := c.ShouldBindJSON(&playerReq); err != nil {
+		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	response := res.usecase.BulkInsertBankPlayer(playerReq)
+	if response.StatusCode != 201 {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	c.JSON(http.StatusCreated, response)
+}

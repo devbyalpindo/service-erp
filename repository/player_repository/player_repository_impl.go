@@ -92,3 +92,11 @@ func (repository *PlayerRepositoryImpl) BulkInsertPlayer(player []entity.Player)
 
 	return "ok", nil
 }
+
+func (repository *PlayerRepositoryImpl) BulkInsertBankPlayer(bank []entity.BankPlayer) (string, error) {
+	if err := repository.DB.Create(&bank).Error; err != nil {
+		return "", err
+	}
+
+	return "ok", nil
+}

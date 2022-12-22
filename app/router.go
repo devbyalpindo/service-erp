@@ -88,6 +88,7 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 
 	router.POST("/api/login", userDelivery.UserLogin)
 	// router.POST("/api/bulk-insert-player", playerDelivery.BulkInsertPlayer)
+	// router.POST("/api/bulk-insert-bank-player", playerDelivery.BulkInsertBankPlayer)
 
 	userRoute := router.Group("/")
 	userRoute.Use(middleware.UserAuth(jwtUsecase))

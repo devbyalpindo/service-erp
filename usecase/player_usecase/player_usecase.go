@@ -9,4 +9,5 @@ type PlayerUsecase interface {
 	UpdatePlayer(dto.UpdatePlayer) dto.Response
 	UpdateBankPlayer(dto.UpdateBankPlayer) dto.Response
 	BulkInsertPlayer([]dto.BulkInsertPlayer) dto.Response
+	BulkInsertBankPlayer([]dto.BulkInsertBankPlayer) dto.Response
 }
