@@ -6,6 +6,7 @@ import (
 	"erp-service/usecase/activity_log_usecase"
 	"erp-service/usecase/player_usecase"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -21,8 +22,14 @@ func NewPlayerDelivery(logUsecase player_usecase.PlayerUsecase, log activity_log
 }
 
 func (res *PlayerDeliveryImpl) GetAllPlayer(c *gin.Context) {
+	limit := c.Query("limit")
+	offset := c.Query("offset")
+	limits, _ := strconv.Atoi(limit)
+	offsets, _ := strconv.Atoi(offset)
 
-	response := res.usecase.GetAllPlayer()
+	playerID := c.Query("q")
+
+	response := res.usecase.GetAllPlayer(playerID, limits, offsets)
 	if response.StatusCode != 200 {
 		c.JSON(response.StatusCode, response)
 		return

@@ -2,6 +2,7 @@ package player_repository
 
 import (
 	"erp-service/helper"
+	"erp-service/model/dto"
 	"erp-service/model/entity"
 	"time"
 
@@ -16,15 +17,32 @@ func NewPlayerRepository(DB *gorm.DB) PlayerRepository {
 	return &PlayerRepositoryImpl{DB}
 }
 
-func (repository *PlayerRepositoryImpl) GetAllPlayer() ([]entity.Player, error) {
+func (repository *PlayerRepositoryImpl) GetAllPlayer(playerID string, limit int, offset int) (dto.PlayerWithTotal, error) {
 	player := []entity.Player{}
-	err := repository.DB.Model(&entity.Player{}).Preload("BankPlayer").Find(&player).Error
-	helper.PanicIfError(err)
-	if len(player) <= 0 {
-		return nil, gorm.ErrRecordNotFound
+	var totalData int64
+	var err error
+
+	if len(playerID) > 0 {
+		err = repository.DB.Model(&entity.Player{}).Preload("BankPlayer").Where("player_id LIKE ?", "%"+playerID+"%").Count(&totalData).Find(&player).Error
+	} else {
+		err = repository.DB.Model(&entity.Player{}).Preload("BankPlayer").Count(&totalData).Limit(limit).Offset(offset).Find(&player).Error
 	}
 
-	return player, nil
+	helper.PanicIfError(err)
+	if len(player) <= 0 {
+		resultError := dto.PlayerWithTotal{
+			Total:  0,
+			Player: nil,
+		}
+		return resultError, gorm.ErrRecordNotFound
+	}
+
+	result := dto.PlayerWithTotal{
+		Total:  totalData,
+		Player: player,
+	}
+
+	return result, nil
 }
 
 func (repository *PlayerRepositoryImpl) GetPlayerByID(id string) (bool, error) {

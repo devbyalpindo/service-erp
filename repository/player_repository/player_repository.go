@@ -1,11 +1,12 @@
 package player_repository
 
 import (
+	"erp-service/model/dto"
 	"erp-service/model/entity"
 )
 
 type PlayerRepository interface {
-	GetAllPlayer() ([]entity.Player, error)
+	GetAllPlayer(playerID string, limit int, offset int) (dto.PlayerWithTotal, error)
 	GetPlayerByID(string) (bool, error)
 	GetPlayerBankByID(string) (*entity.BankPlayer, error)
 	AddPlayer(*entity.Player) (*string, error)

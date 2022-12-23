@@ -3,7 +3,7 @@ package player_usecase
 import "erp-service/model/dto"
 
 type PlayerUsecase interface {
-	GetAllPlayer() dto.Response
+	GetAllPlayer(playerID string, limit int, offset int) dto.Response
 	AddPlayer(dto.AddPlayer) dto.Response
 	AddPlayerBank(dto.AddBankPlayer) dto.Response
 	UpdatePlayer(dto.UpdatePlayer) dto.Response

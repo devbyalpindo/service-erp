@@ -1,5 +1,7 @@
 package dto
 
+import "erp-service/model/entity"
+
 type Player struct {
 	PlayerID   string `json:"player_id"`
 	PlayerName string `json:"player_name"`
@@ -42,4 +44,9 @@ type BulkInsertBankPlayer struct {
 	BankName      string `validate:"required" json:"bank_Name"`
 	AccountName   string `validate:"required" json:"bank_Account_Name"`
 	AccountNumber string `validate:"required" json:"bank_Account_Number"`
+}
+
+type PlayerWithTotal struct {
+	Total  int64 `json:"total"`
+	Player []entity.Player
 }

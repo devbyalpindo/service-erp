@@ -25,8 +25,8 @@ func NewPlayerUsecase(playerRepository player_repository.PlayerRepository, valid
 	}
 }
 
-func (usecase *PlayerUsecaseImpl) GetAllPlayer() dto.Response {
-	playerList, err := usecase.PlayerRepository.GetAllPlayer()
+func (usecase *PlayerUsecaseImpl) GetAllPlayer(playerID string, limit int, offset int) dto.Response {
+	playerList, err := usecase.PlayerRepository.GetAllPlayer(playerID, limit, offset)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return helper.ResponseError("failed", "Data not found", 404)
 	} else if err != nil {
@@ -35,7 +35,8 @@ func (usecase *PlayerUsecaseImpl) GetAllPlayer() dto.Response {
 	helper.PanicIfError(err)
 
 	var result map[string]any = make(map[string]any)
-	result["list_player"] = playerList
+	result["total"] = playerList.Total
+	result["list_player"] = playerList.Player
 
 	return helper.ResponseSuccess("ok", nil, result, 200)
 }
