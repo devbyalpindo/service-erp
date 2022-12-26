@@ -93,6 +93,23 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 		return helper.ResponseError("failed", "bank not found", 404)
 	}
 
+	var lastBalanceCoin float64
+	var lastBalanceBank float64
+
+	if types.TypeTransaction == "WITHDRAW" {
+		lastBalanceCoin = coin.Balance + body.Ammount
+		lastBalanceBank = bank.Balance - (body.Ammount + body.AdminFee)
+	} else if types.TypeTransaction == "DEPOSIT" {
+		lastBalanceCoin = coin.Balance - body.Ammount
+		lastBalanceBank = bank.Balance + (body.Ammount + body.AdminFee)
+	} else if types.TypeTransaction == "BONUS" {
+		lastBalanceCoin = coin.Balance - body.Ammount
+		lastBalanceBank = bank.Balance
+	} else {
+		lastBalanceCoin = coin.Balance
+		lastBalanceBank = bank.Balance
+	}
+
 	payloadTrx := &entity.Transaction{
 		TransactionID:   createID,
 		UserID:          userID,
@@ -102,8 +119,8 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 		TypeID:          body.TypeID,
 		Ammount:         body.Ammount,
 		AdminFee:        body.AdminFee,
-		LastBalanceCoin: coin.Balance,
-		LastBalanceBank: bank.Balance,
+		LastBalanceCoin: lastBalanceCoin,
+		LastBalanceBank: lastBalanceBank,
 		Status:          body.Status,
 		Note:            body.Note,
 		CreatedAt:       time.Now().Format("2006-01-02 15:04:05"),
@@ -243,4 +260,60 @@ func (usecase *TransactionUsecaseImpl) UpdateTransaction(transactionID string, b
 	}
 
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trxUpdate}, 200)
+}
+
+func (usecase *TransactionUsecaseImpl) CanceledTransaction(transactionID string) dto.Response {
+
+	if len(transactionID) == 0 {
+		return helper.ResponseError("failed", "transaction id required", 400)
+	}
+
+	transaction, err := usecase.TrxRepository.GetDetailTransaction(transactionID)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	bank, err := usecase.BankRepository.GetDetailBank(transaction.BankID)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	typeTrx, err := usecase.TypeRepository.GetDetailType(transaction.TypeID)
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	coin, _ := usecase.CoinRepository.GetDetailCoin()
+
+	var balanceBank float64
+	var balanceCoin float64
+
+	if typeTrx.TypeTransaction == "DEPOSIT" {
+		if bank.Balance <= transaction.Ammount {
+			return helper.ResponseError("failed", "bank balance is not enough, please top up the bank balance", 400)
+		}
+
+		if transaction.Status == "PENDING" {
+			balanceCoin = coin.Balance
+		} else {
+			balanceCoin = coin.Balance + transaction.Ammount
+		}
+		balanceBank = bank.Balance - (transaction.Ammount + transaction.AdminFee)
+	} else if typeTrx.TypeTransaction == "WITHDRAW" {
+		balanceBank = bank.Balance + (transaction.Ammount + transaction.AdminFee)
+		balanceCoin = coin.Balance - transaction.Ammount
+	} else if typeTrx.TypeTransaction == "BONUS" {
+		balanceBank = bank.Balance
+		balanceCoin = coin.Balance + transaction.Ammount
+	} else {
+		return helper.ResponseError("failed", "Cancel transaction failed, Transaction not found", 404)
+	}
+
+	cancelTrx, err := usecase.TrxRepository.CanceledTransaction(transaction.TransactionID, bank.BankID, balanceBank, balanceCoin)
+
+	if err != nil {
+		return helper.ResponseError("failed", err.Error(), 404)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": cancelTrx}, 200)
 }

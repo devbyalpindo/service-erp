@@ -6,4 +6,5 @@ type TransactionDelivery interface {
 	AddTransaction(*gin.Context)
 	GetAllTransaction(*gin.Context)
 	UpdateTransaction(*gin.Context)
+	CanceledTransaction(*gin.Context)
 }

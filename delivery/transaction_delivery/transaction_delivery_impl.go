@@ -112,3 +112,32 @@ func (res *TransactionDeliveryImpl) UpdateTransaction(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (res *TransactionDeliveryImpl) CanceledTransaction(c *gin.Context) {
+	id := c.Param("id")
+
+	response := res.usecase.CanceledTransaction(id)
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	userID, _ := c.Get("user_id")
+	userName, _ := c.Get("username")
+
+	logBody := dto.ActivityLog{
+		UserID:        userID.(string),
+		IsTransaction: true,
+		TransactionID: response.Data["id"].(string),
+		Description:   userName.(string) + " telah membatalkan transaksi",
+		CreatedAt:     time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	_, errors := res.log.AddActivity(logBody)
+
+	if errors != nil {
+		helper.PanicIfError(errors)
+	}
+
+	c.JSON(http.StatusOK, response)
+}

@@ -214,3 +214,35 @@ func (repository *TransactionRepositoryImpl) UpdateTransaction(transactionID str
 
 	return transactionID, nil
 }
+
+func (repository *TransactionRepositoryImpl) CanceledTransaction(transactionID string, bankID string, balanceBank float64, balanceCoin float64) (string, error) {
+	trx := entity.Transaction{}
+	coin := entity.Coin{}
+	bank := entity.Bank{}
+
+	tx := repository.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if err := tx.Model(&trx).Where("transaction_id = ?", transactionID).Updates(entity.Transaction{Status: "CANCELED", LastBalanceBank: balanceBank, LastBalanceCoin: balanceCoin, UpdatedAt: time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
+		tx.Rollback()
+		return "", err
+	}
+
+	if err := tx.Model(&coin).Where("coin_name = ?", "SALJU 88").Updates(map[string]interface{}{"balance": balanceCoin, "updated_at": time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
+		tx.Rollback()
+		return "", err
+	}
+
+	if err := tx.Model(&bank).Where("bank_id = ?", bankID).Updates(map[string]interface{}{"balance": balanceBank, "updated_at": time.Now().Format("2006-01-02 15:04:05")}).Error; err != nil {
+		tx.Rollback()
+		return "", err
+	}
+
+	tx.Commit()
+
+	return transactionID, nil
+}

@@ -10,4 +10,5 @@ type TransactionRepository interface {
 	GetAllTransaction(roleID string, limit int, offset int, dateFrom string, dateTo string, types string, status string) (dto.TransactionWithTotal, error)
 	GetDetailTransaction(string) (*entity.Transaction, error)
 	UpdateTransaction(transactionID string, playerID string, bankPlayerID string, status string, balanceCoin float64) (string, error)
+	CanceledTransaction(transactionID string, bankID string, balanceBank float64, balanceCoin float64) (string, error)
 }
