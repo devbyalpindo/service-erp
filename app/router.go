@@ -134,7 +134,7 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		adminRoute.GET("/api/dashboard", dashboardDelivery.GetDashboard)
 
 		//transaction
-		userRoute.POST("/api/cancel-transaction/:id", trxDelivery.CanceledTransaction)
+		adminRoute.POST("/api/cancel-transaction/:id", trxDelivery.CanceledTransaction)
 
 		//user
 		adminRoute.GET("/api/user", userDelivery.GetAllUser)
