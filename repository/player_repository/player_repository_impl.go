@@ -23,7 +23,7 @@ func (repository *PlayerRepositoryImpl) GetAllPlayer(playerID string, limit int,
 	var err error
 
 	if len(playerID) > 0 {
-		err = repository.DB.Model(&entity.Player{}).Preload("BankPlayer").Where("player_id LIKE ?", "%"+playerID+"%").Count(&totalData).Limit(limit).Offset(offset).Find(&player).Error
+		err = repository.DB.Model(&entity.Player{}).Preload("BankPlayer").Where("player_id = ?", playerID).Count(&totalData).Limit(limit).Offset(offset).Find(&player).Error
 	} else {
 		err = repository.DB.Model(&entity.Player{}).Preload("BankPlayer").Count(&totalData).Limit(limit).Offset(offset).Find(&player).Error
 	}
