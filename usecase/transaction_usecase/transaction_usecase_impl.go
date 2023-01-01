@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -160,8 +161,16 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trx}, 201)
 }
 
-func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit int, offset int, dateFrom string, dateTo string, types string, status string) dto.Response {
-	trxList, err := usecase.TrxRepository.GetAllTransaction(roleName, limit, offset, dateFrom, dateTo, types, status)
+func (usecase *TransactionUsecaseImpl) GetAllTransaction(roleName string, limit int, offset int, dateFrom string, dateTo string, types string, status string, keyword string, filter string) dto.Response {
+	if len(filter) > 0 {
+		filterValid := []string{"note", "player_id"}
+
+		if !slices.Contains(filterValid, filter) {
+			return helper.ResponseError("bad request", "Filter Only note and player_id", 400)
+		}
+	}
+
+	trxList, err := usecase.TrxRepository.GetAllTransaction(roleName, limit, offset, dateFrom, dateTo, types, status, keyword, filter)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return helper.ResponseError("failed", "Data not found", 404)
 	} else if err != nil {

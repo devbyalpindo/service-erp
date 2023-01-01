@@ -93,6 +93,9 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 	userRoute := router.Group("/")
 	userRoute.Use(middleware.UserAuth(jwtUsecase))
 	{
+		//dashboard
+		userRoute.GET("/api/dashboard", dashboardDelivery.GetDashboard)
+
 		//transaction
 		userRoute.GET("/api/transaction", trxDelivery.GetAllTransaction)
 		userRoute.POST("/api/transaction", trxDelivery.AddTransaction)
@@ -125,14 +128,14 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 
 		//user
 		userRoute.POST("/api/user/change-password", userDelivery.ChangePassword)
+
+		//log
+		userRoute.GET("/api/log", logDelivery.GetActivity)
 	}
 
 	adminRoute := router.Group("/")
 	adminRoute.Use(middleware.AdminAuth(jwtUsecase))
 	{
-		//dashboard
-		adminRoute.GET("/api/dashboard", dashboardDelivery.GetDashboard)
-
 		//transaction
 		adminRoute.POST("/api/cancel-transaction/:id", trxDelivery.CanceledTransaction)
 
@@ -146,9 +149,6 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		//bank
 		adminRoute.POST("/api/bank", bankDelivery.AddBank)
 		adminRoute.PUT("/api/bank/:id", bankDelivery.UpdateBank)
-
-		//log
-		adminRoute.GET("/api/log", logDelivery.GetActivity)
 
 		//bonus
 		adminRoute.PUT("/api/bonus/:id", bonusDelivery.UpdateBonus)
