@@ -191,17 +191,19 @@ func (repository *TransactionRepositoryImpl) GetAllTransaction(roleName string, 
 	var totalBonus float64
 
 	for _, item := range trx {
-		switch item.TypeTransaction {
-		case "DEPOSIT":
-			totalDeposit += item.Ammount
-		case "WITHDRAW":
-			totalWithdraw += item.Ammount
-		case "BONUS":
-			totalBonus += item.Ammount
-		default:
-			totalDeposit += 0
-			totalWithdraw += 0
-			totalBonus += 0
+		if item.Status != "CANCELED" {
+			switch item.TypeTransaction {
+			case "DEPOSIT":
+				totalDeposit += item.Ammount
+			case "WITHDRAW":
+				totalWithdraw += item.Ammount
+			case "BONUS":
+				totalBonus += item.Ammount
+			default:
+				totalDeposit += 0
+				totalWithdraw += 0
+				totalBonus += 0
+			}
 		}
 	}
 

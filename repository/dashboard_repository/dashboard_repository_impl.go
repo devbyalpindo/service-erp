@@ -16,7 +16,7 @@ func NewDashboardRepository(DB *gorm.DB) DashboardRepository {
 
 func (repository *DashboardRepositoryImpl) GetTransactionValue(dateFrom string, dateTo string) ([]dto.TransactionValue, error) {
 	trxValue := []dto.TransactionValue{}
-	err := repository.DB.Table("transactions").Select("count(transactions.ammount) as total, type_transactions.type_transaction as value, sum(transactions.ammount) as total_ammount").Joins("inner join type_transactions on type_transactions.type_id = transactions.type_id").Where("DATE(transactions.created_at) >= ? AND DATE(transactions.created_at) <= ?", dateFrom, dateTo).Group("type_transactions.type_transaction").Limit(10).Find(&trxValue).Error
+	err := repository.DB.Table("transactions").Select("count(transactions.ammount) as total, type_transactions.type_transaction as value, sum(transactions.ammount) as total_ammount").Joins("inner join type_transactions on type_transactions.type_id = transactions.type_id").Where("DATE(transactions.created_at) >= ? AND DATE(transactions.created_at) <= ? AND transactions.status != ?", dateFrom, dateTo, "CANCELED").Group("type_transactions.type_transaction").Limit(10).Find(&trxValue).Error
 
 	if err != nil {
 		return trxValue, nil
