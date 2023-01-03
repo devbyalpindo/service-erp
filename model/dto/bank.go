@@ -50,10 +50,11 @@ type BankTransfer struct {
 }
 
 type GetMutationBank struct {
-	BankID   string `json:"bank_id"`
-	Type     string `json:"type"`
-	DateFrom string `validate:"required" json:"date_from"`
-	DateTo   string `validate:"required" json:"date_to"`
-	Limit    int    `validate:"min=0" json:"limit"`
-	Offset   int    `validate:"min=0" json:"offset"`
+	BankID            string `json:"bank_id"`
+	Type              string `json:"type"`
+	IsTransactionBank bool   `json:"is_transaction_bank"`
+	DateFrom          string `validate:"required" json:"date_from"`
+	DateTo            string `validate:"required" json:"date_to"`
+	Limit             int    `validate:"min=0" json:"limit"`
+	Offset            int    `validate:"min=0" json:"offset"`
 }

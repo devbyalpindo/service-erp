@@ -1,13 +1,14 @@
 package entity
 
 type MutationBank struct {
-	MutationBankID string  `json:"mutation_bank_id"`
-	BankID         string  `json:"bank_id"`
-	Type           string  `json:"type"`
-	Ammount        float64 `json:"ammount"`
-	LastBalance    float64 `json:"last_balance"`
-	Description    string  `json:"description"`
-	CreatedAt      string  `json:"created_at"`
+	MutationBankID    string  `json:"mutation_bank_id"`
+	BankID            string  `json:"bank_id"`
+	Type              string  `json:"type"`
+	Ammount           float64 `json:"ammount"`
+	LastBalance       float64 `json:"last_balance"`
+	Description       string  `json:"description"`
+	IsTransactionBank bool    `json:"is_transaction_bank"`
+	CreatedAt         string  `json:"created_at"`
 }
 
 type BankJoinMutation struct {
@@ -19,6 +20,7 @@ type BankJoinMutation struct {
 	Ammount        float64 `json:"ammount"`
 	LastBalance    float64 `json:"last_balance"`
 	Description    string  `json:"description"`
+	CreatedAt      string  `json:"created_at"`
 }
 
 type BankithTotal struct {

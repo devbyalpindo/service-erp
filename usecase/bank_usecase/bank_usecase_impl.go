@@ -186,13 +186,14 @@ func (usecase *BankUsecaseImpl) UpdateBankBalance(body dto.BankUpdateBalance) dt
 	}
 
 	payloadMutation := entity.MutationBank{
-		MutationBankID: uuid.New().String(),
-		BankID:         body.BankID,
-		Type:           typeMutation,
-		Ammount:        body.Balance,
-		LastBalance:    lastBalance,
-		Description:    desc,
-		CreatedAt:      time.Now().Format("2006-01-02 15:04:05"),
+		MutationBankID:    uuid.New().String(),
+		BankID:            body.BankID,
+		Type:              typeMutation,
+		Ammount:           body.Balance,
+		LastBalance:       lastBalance,
+		Description:       desc,
+		IsTransactionBank: true,
+		CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	mutationID, err := usecase.BankRepository.TransactionBank(payloadMutation)
@@ -260,7 +261,7 @@ func (usecase *BankUsecaseImpl) GetMutation(body dto.GetMutationBank) dto.Respon
 		}
 	}
 
-	listMutation, err := usecase.BankRepository.GetMutation(body.BankID, body.Type, body.Limit, body.Offset, body.DateFrom, body.DateTo)
+	listMutation, err := usecase.BankRepository.GetMutation(body.BankID, body.Type, body.IsTransactionBank, body.Limit, body.Offset, body.DateFrom, body.DateTo)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return helper.ResponseError("failed", "Data not found", 404)
 	} else if err != nil {
@@ -268,9 +269,26 @@ func (usecase *BankUsecaseImpl) GetMutation(body dto.GetMutationBank) dto.Respon
 	}
 	helper.PanicIfError(err)
 
+	response := []entity.BankJoinMutation{}
+	for _, item := range listMutation.Mutation {
+		timeCreated, _ := time.Parse(time.RFC3339, item.CreatedAt)
+		responseData := entity.BankJoinMutation{
+			MutationBankID: item.MutationBankID,
+			BankID:         item.BankID,
+			BankName:       item.BankName,
+			AccountNumber:  item.AccountNumber,
+			Type:           item.Type,
+			Ammount:        item.Ammount,
+			LastBalance:    item.LastBalance,
+			Description:    item.Description,
+			CreatedAt:      timeCreated.Format("2006-01-02 15:04:05"),
+		}
+		response = append(response, responseData)
+	}
+
 	var result map[string]any = make(map[string]any)
 	result["total"] = listMutation.Total
-	result["mutasi"] = listMutation.Mutation
+	result["mutasi"] = response
 
 	return helper.ResponseSuccess("ok", nil, result, 200)
 }

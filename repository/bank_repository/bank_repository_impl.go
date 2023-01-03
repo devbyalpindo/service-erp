@@ -90,22 +90,24 @@ func (repository *BankRepositoryImpl) TransferToBank(idFrom string, balanceBankF
 	bank := entity.Bank{}
 	mutationBank := []entity.MutationBank{
 		{
-			MutationBankID: uuid.New().String(),
-			BankID:         idFrom,
-			Type:           "DEBET",
-			Ammount:        ammount,
-			LastBalance:    balanceBankFrom,
-			Description:    "Transfer ke bank lain",
-			CreatedAt:      time.Now().Format("2006-01-02 15:04:05"),
+			MutationBankID:    uuid.New().String(),
+			BankID:            idFrom,
+			Type:              "DEBET",
+			Ammount:           ammount,
+			LastBalance:       balanceBankFrom,
+			Description:       "Transfer ke bank lain",
+			IsTransactionBank: true,
+			CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
 		},
 		{
-			MutationBankID: uuid.New().String(),
-			BankID:         idBankTo,
-			Type:           "CREDIT",
-			Ammount:        ammount,
-			LastBalance:    balanceBankTo,
-			Description:    "Menerima transfer dari bank lain",
-			CreatedAt:      time.Now().Format("2006-01-02 15:04:05"),
+			MutationBankID:    uuid.New().String(),
+			BankID:            idBankTo,
+			Type:              "CREDIT",
+			Ammount:           ammount,
+			LastBalance:       balanceBankTo,
+			Description:       "Menerima transfer dari bank lain",
+			IsTransactionBank: true,
+			CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
 		},
 	}
 
@@ -144,26 +146,46 @@ func (repository *BankRepositoryImpl) TransactionBank(bank entity.MutationBank) 
 	return &bank.MutationBankID, nil
 }
 
-func (repository *BankRepositoryImpl) GetMutation(bankID string, types string, limit int, offset int, dateFrom string, dateTo string) (entity.BankithTotal, error) {
+func (repository *BankRepositoryImpl) GetMutation(bankID string, types string, isTransactionBank bool, limit int, offset int, dateFrom string, dateTo string) (entity.BankithTotal, error) {
 
 	mutation := []entity.BankJoinMutation{}
 	var err error
 	var totalData int64
 
 	if len(bankID) > 0 && len(types) > 0 {
-		err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.bank_id = ? AND mutation_banks.type = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ?", bankID, types, dateFrom, dateTo).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		if isTransactionBank {
+			err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description, mutation_banks.created_at").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.bank_id = ? AND mutation_banks.type = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ? AND mutation_banks.is_transaction_bank = ?", bankID, types, dateFrom, dateTo, isTransactionBank).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		} else {
+			err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description, mutation_banks.created_at").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.bank_id = ? AND mutation_banks.type = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ?", bankID, types, dateFrom, dateTo).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		}
+
 	}
 
 	if len(bankID) == 0 && len(types) > 0 {
-		err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.type = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ?", types, dateFrom, dateTo).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		if isTransactionBank {
+			err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description, mutation_banks.created_at").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.type = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ? AND mutation_banks.is_transaction_bank = ?", types, dateFrom, dateTo, isTransactionBank).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		} else {
+			err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description, mutation_banks.created_at").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.type = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ?", types, dateFrom, dateTo).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		}
+
 	}
 
 	if len(types) == 0 && len(bankID) > 0 {
-		err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.bank_id = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ?", bankID, dateFrom, dateTo).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		if isTransactionBank {
+			err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description, mutation_banks.created_at").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.bank_id = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ? AND mutation_banks.is_transaction_bank = ?", bankID, dateFrom, dateTo, isTransactionBank).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		} else {
+			err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description, mutation_banks.created_at").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("mutation_banks.bank_id = ? AND DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ?", bankID, dateFrom, dateTo).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		}
+
 	}
 
 	if len(bankID) == 0 && len(types) == 0 {
-		err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ?", dateFrom, dateTo).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		if isTransactionBank {
+			err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description, mutation_banks.created_at").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ? AND mutation_banks.is_transaction_bank = ?", dateFrom, dateTo, isTransactionBank).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		} else {
+			err = repository.DB.Table("mutation_banks").Select("mutation_banks.mutation_bank_id, mutation_banks.bank_id, banks.bank_name, banks.account_number, mutation_banks.type, mutation_banks.ammount, mutation_banks.last_balance, mutation_banks.description, mutation_banks.created_at").Joins("inner join banks on mutation_banks.bank_id = banks.bank_id").Where("DATE(mutation_banks.created_at) >= ? AND DATE(mutation_banks.created_at) <= ?", dateFrom, dateTo).Order("mutation_banks.created_at DESC").Count(&totalData).Limit(limit).Offset(offset).Find(&mutation).Error
+		}
+
 	}
 
 	helper.PanicIfError(err)

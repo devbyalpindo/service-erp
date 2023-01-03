@@ -12,5 +12,5 @@ type BankRepository interface {
 	UpdateBalanceBank(bank *entity.Bank, types string) (*string, float64, error)
 	TransferToBank(idFrom string, balanceBankFrom float64, idBankTo string, balanceBankTo float64, amount float64) (*string, error)
 	TransactionBank(bank entity.MutationBank) (*string, error)
-	GetMutation(bankID string, types string, limit int, offset int, dateFrom string, dateTo string) (entity.BankithTotal, error)
+	GetMutation(bankID string, types string, IsTransactionBank bool, limit int, offset int, dateFrom string, dateTo string) (entity.BankithTotal, error)
 }

@@ -32,13 +32,14 @@ func (repository *TransactionRepositoryImpl) AddTransaction(trx *entity.Transact
 	}
 
 	mutation := entity.MutationBank{
-		MutationBankID: uuid.New().String(),
-		BankID:         trx.BankID,
-		Type:           typeTrx,
-		Ammount:        trx.Ammount,
-		LastBalance:    balanceBank,
-		Description:    desc,
-		CreatedAt:      time.Now().Format("2006-01-02 15:04:05"),
+		MutationBankID:    uuid.New().String(),
+		BankID:            trx.BankID,
+		Type:              typeTrx,
+		Ammount:           trx.Ammount,
+		LastBalance:       balanceBank,
+		Description:       desc,
+		IsTransactionBank: false,
+		CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
 	}
 
 	tx := repository.DB.Begin()
