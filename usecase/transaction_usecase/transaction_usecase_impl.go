@@ -133,29 +133,20 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 			return helper.ResponseError("failed", "saldo bank tidak mencukupi", 400)
 		}
 	}
-
-	var bankBalance float64
-	var coinBalance float64
 	var typeMutation string
 
 	switch types.TypeTransaction {
 	case "WITHDRAW":
-		bankBalance = bank.Balance - (body.Ammount + body.AdminFee)
-		coinBalance = coin.Balance + body.Ammount
 		typeMutation = "DEBET"
 	case "DEPOSIT":
-		bankBalance = bank.Balance + (body.Ammount + body.AdminFee)
-		coinBalance = coin.Balance - body.Ammount
 		typeMutation = "CREDIT"
 	case "BONUS":
-		bankBalance = bank.Balance
-		coinBalance = coin.Balance + body.Ammount
 		typeMutation = "NOT"
 	default:
 		return helper.ResponseError("failed", "transaksi gagal", 400)
 	}
 
-	trx, err := usecase.TrxRepository.AddTransaction(payloadTrx, coinBalance, bankBalance, typeMutation)
+	trx, err := usecase.TrxRepository.AddTransaction(payloadTrx, lastBalanceCoin, lastBalanceBank, typeMutation)
 	helper.PanicIfError(err)
 
 	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trx}, 201)
