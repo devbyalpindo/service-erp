@@ -104,6 +104,7 @@ func InitRouter(mysqlConn *gorm.DB) *gin.Engine {
 		//coin
 		userRoute.GET("/api/coin-balance", coinDelivery.GetDetailCoin)
 		userRoute.GET("/api/type-transaction", typeDelivery.GetAllType)
+		userRoute.POST("/api/mutation-coin", coinDelivery.GetMutation)
 
 		//player
 		userRoute.GET("/api/player", playerDelivery.GetAllPlayer)

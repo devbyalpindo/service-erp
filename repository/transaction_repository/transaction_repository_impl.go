@@ -23,21 +23,46 @@ func (repository *TransactionRepositoryImpl) AddTransaction(trx *entity.Transact
 	bank := entity.Bank{}
 	coin := entity.Coin{}
 	var desc string
+	var descCoin string
+	var typeTrxCoin string
+	var mutationAmmountBank float64
+
 	if typeTrx == "DEBET" {
-		desc = "Mengurangi saldo bank dari transaksi WITHDRAW"
+		desc = "Mengurangi saldo bank dari transaksi WITHDRAW dari ID Transaksi " + trx.TransactionID
+		descCoin = "Menambah saldo coin dari transaksi WITHDRAW dari ID Transaksi " + trx.TransactionID
+		typeTrxCoin = "CREDIT"
+		mutationAmmountBank = trx.Ammount + trx.AdminFee
 	}
 
 	if typeTrx == "CREDIT" {
-		desc = "Menambah saldo bank dari transaksi DEPOSIT"
+		desc = "Menambah saldo bank dari transaksi DEPOSIT dari ID Transaksi " + trx.TransactionID
+		descCoin = "Mengurangi saldo coin dari transaksi DEPOSIT dari ID Transaksi " + trx.TransactionID
+		typeTrxCoin = "DEBET"
+		mutationAmmountBank = trx.Ammount
+	}
+
+	if typeTrx == "BONUS" {
+		descCoin = "Mengurangi saldo coin dari transaksi BONUS dari ID Transaksi " + trx.TransactionID
+		typeTrxCoin = "DEBET"
 	}
 
 	mutation := entity.MutationBank{
 		MutationBankID:    uuid.New().String(),
 		BankID:            trx.BankID,
 		Type:              typeTrx,
-		Ammount:           trx.Ammount,
+		Ammount:           mutationAmmountBank,
 		LastBalance:       balanceBank,
 		Description:       desc,
+		IsTransactionBank: false,
+		CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	mutationCoin := entity.MutationCoin{
+		MutationCoinID:    uuid.New().String(),
+		Type:              typeTrxCoin,
+		Ammount:           trx.Ammount,
+		LastBalance:       balanceCoin,
+		Description:       descCoin,
 		IsTransactionBank: false,
 		CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
 	}
@@ -49,8 +74,14 @@ func (repository *TransactionRepositoryImpl) AddTransaction(trx *entity.Transact
 		}
 	}()
 
-	if typeTrx != "NOT" {
+	if typeTrx != "BONUS" {
 		if err := tx.Create(&mutation).Error; err != nil {
+			tx.Rollback()
+			return "", err
+		}
+	}
+	if trx.Status == "COMPLETED" {
+		if err := tx.Create(&mutationCoin).Error; err != nil {
 			tx.Rollback()
 			return "", err
 		}

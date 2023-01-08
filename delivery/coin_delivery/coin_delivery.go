@@ -6,4 +6,5 @@ type CoinDelivery interface {
 	GetCoin(*gin.Context)
 	GetDetailCoin(*gin.Context)
 	UpdateCoinBalance(*gin.Context)
+	GetMutation(*gin.Context)
 }

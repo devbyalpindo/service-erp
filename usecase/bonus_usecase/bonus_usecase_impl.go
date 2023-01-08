@@ -71,7 +71,25 @@ func (usecase *BonusUsecaseImpl) AddBonus(body dto.BonusAdd) dto.Response {
 	bonus, err := usecase.BonusRepository.AddBonus(payloadBonus, coin.Balance-payloadBonus.Ammount)
 	helper.PanicIfError(err)
 
-	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": bonus}, 201)
+	typeMutation := "DEBET"
+	desc := "Bonus " + body.Type
+
+	payloadMutation := entity.MutationCoin{
+		MutationCoinID:    uuid.New().String(),
+		Type:              typeMutation,
+		Ammount:           body.Ammount,
+		LastBalance:       coin.Balance - payloadBonus.Ammount,
+		Description:       desc,
+		IsTransactionBank: true,
+		CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	mutationID, err := usecase.CoinRepository.TransactionCoin(payloadMutation)
+	if err != nil {
+		return helper.ResponseError("failed", err.Error(), 400)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": bonus, "mutation_id": mutationID}, 201)
 
 }
 

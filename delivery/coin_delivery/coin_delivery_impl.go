@@ -96,3 +96,20 @@ func (res *CoinDeliveryImpl) UpdateCoinBalance(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response)
 }
+
+func (res *CoinDeliveryImpl) GetMutation(c *gin.Context) {
+	mutationRequest := dto.GetMutationCoin{}
+	if err := c.ShouldBindJSON(&mutationRequest); err != nil {
+		errorRes := helper.ResponseError("Bad Request", err.Error(), 400)
+		c.JSON(errorRes.StatusCode, errorRes)
+		return
+	}
+
+	response := res.usecase.GetMutation(mutationRequest)
+	if response.StatusCode != 200 {
+		c.JSON(response.StatusCode, response)
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}

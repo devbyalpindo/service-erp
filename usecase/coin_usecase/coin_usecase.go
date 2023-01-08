@@ -6,4 +6,5 @@ type CoinUsecase interface {
 	GetCoin() dto.Response
 	GetDetailCoin() dto.Response
 	UpdateCoinBalance(dto.CoinUpdateBalance) dto.Response
+	GetMutation(dto.GetMutationCoin) dto.Response
 }

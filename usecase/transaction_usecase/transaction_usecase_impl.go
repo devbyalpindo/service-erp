@@ -10,7 +10,7 @@ import (
 	"erp-service/repository/transaction_repository"
 	"erp-service/repository/type_repository"
 	"errors"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -65,6 +65,10 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 	}
 
 	if types.TypeTransaction == "WITHDRAW" && body.Status == "PENDING" {
+		return helper.ResponseError("failed", "status PENDING only DEPOSIT", 400)
+	}
+
+	if types.TypeTransaction == "BONUS" && body.Status == "PENDING" {
 		return helper.ResponseError("failed", "status PENDING only DEPOSIT", 400)
 	}
 
@@ -141,7 +145,7 @@ func (usecase *TransactionUsecaseImpl) AddTransaction(userID string, body dto.Ad
 	case "DEPOSIT":
 		typeMutation = "CREDIT"
 	case "BONUS":
-		typeMutation = "NOT"
+		typeMutation = "BONUS"
 	default:
 		return helper.ResponseError("failed", "transaksi gagal", 400)
 	}
@@ -222,8 +226,6 @@ func (usecase *TransactionUsecaseImpl) UpdateTransaction(transactionID string, b
 		}
 	}
 
-	log.Print(body)
-
 	player, _ := usecase.PlayerRepository.GetPlayerByID(body.PlayerID)
 	if player {
 		return helper.ResponseError("failed", "player not found", 404)
@@ -259,7 +261,25 @@ func (usecase *TransactionUsecaseImpl) UpdateTransaction(transactionID string, b
 		return helper.ResponseError("failed", "Gagal update transaksi", 404)
 	}
 
-	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trxUpdate}, 200)
+	typeMutation := "DEBET"
+	desc := "Mengurangi saldo coin dari update transaksi pending dari ID Transaksi " + trxUpdate
+
+	payloadMutation := entity.MutationCoin{
+		MutationCoinID:    uuid.New().String(),
+		Type:              typeMutation,
+		Ammount:           trx.Ammount,
+		LastBalance:       balanceCoin,
+		Description:       desc,
+		IsTransactionBank: false,
+		CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	mutationID, err := usecase.CoinRepository.TransactionCoin(payloadMutation)
+	if err != nil {
+		return helper.ResponseError("failed", err.Error(), 400)
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": trxUpdate, "mutation_coin_id": mutationID}, 200)
 }
 
 func (usecase *TransactionUsecaseImpl) CanceledTransaction(transactionID string) dto.Response {
@@ -287,6 +307,10 @@ func (usecase *TransactionUsecaseImpl) CanceledTransaction(transactionID string)
 
 	var balanceBank float64
 	var balanceCoin float64
+	var typeMutationBank string
+	var typeMutationCoin string
+	var descBank string
+	var descCoin string
 
 	if typeTrx.TypeTransaction == "DEPOSIT" {
 		if bank.Balance <= transaction.Ammount {
@@ -297,14 +321,24 @@ func (usecase *TransactionUsecaseImpl) CanceledTransaction(transactionID string)
 			balanceCoin = coin.Balance
 		} else {
 			balanceCoin = coin.Balance + transaction.Ammount
+			typeMutationCoin = "CREDIT"
+			descCoin = "Saldo coin ditambahkan sebesar " + fmt.Sprintf("%.2f", transaction.Ammount) + " dari cancel transaksi ID " + transaction.TransactionID
 		}
 		balanceBank = bank.Balance - (transaction.Ammount + transaction.AdminFee)
+		typeMutationBank = "DEBET"
+		descBank = "Saldo bank dikurangi sebesar " + fmt.Sprintf("%.2f", transaction.Ammount+transaction.AdminFee) + " dari cancel transaksi ID " + transaction.TransactionID
 	} else if typeTrx.TypeTransaction == "WITHDRAW" {
 		balanceBank = bank.Balance + (transaction.Ammount + transaction.AdminFee)
 		balanceCoin = coin.Balance - transaction.Ammount
+		typeMutationBank = "CREDIT"
+		typeMutationCoin = "DEBET"
+		descBank = "Saldo bank ditambahkan sebesar " + fmt.Sprintf("%.2f", transaction.Ammount+transaction.AdminFee) + " dari cancel transaksi ID " + transaction.TransactionID
+		descCoin = "Saldo coin dikurangi sebesar " + fmt.Sprintf("%.2f", transaction.Ammount) + " dari cancel transaksi ID " + transaction.TransactionID
 	} else if typeTrx.TypeTransaction == "BONUS" {
 		balanceBank = bank.Balance
 		balanceCoin = coin.Balance + transaction.Ammount
+		typeMutationCoin = "CREDIT"
+		descCoin = "Saldo coin ditambahkan sebesar " + fmt.Sprintf("%.2f", transaction.Ammount) + " dari cancel transaksi ID " + transaction.TransactionID
 	} else {
 		return helper.ResponseError("failed", "Cancel transaction failed, Transaction not found", 404)
 	}
@@ -315,5 +349,38 @@ func (usecase *TransactionUsecaseImpl) CanceledTransaction(transactionID string)
 		return helper.ResponseError("failed", err.Error(), 404)
 	}
 
-	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": cancelTrx}, 200)
+	payloadMutationBank := entity.MutationBank{
+		MutationBankID:    uuid.New().String(),
+		BankID:            bank.BankID,
+		Type:              typeMutationBank,
+		Ammount:           (transaction.Ammount + transaction.AdminFee),
+		LastBalance:       balanceBank,
+		Description:       descBank,
+		IsTransactionBank: false,
+		CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	mutationID, err := usecase.BankRepository.TransactionBank(payloadMutationBank)
+	if err != nil {
+		return helper.ResponseError("failed", err.Error(), 400)
+	}
+
+	if transaction.Status != "PENDING" {
+		payloadMutationCoin := entity.MutationCoin{
+			MutationCoinID:    uuid.New().String(),
+			Type:              typeMutationCoin,
+			Ammount:           transaction.Ammount,
+			LastBalance:       balanceCoin,
+			Description:       descCoin,
+			IsTransactionBank: false,
+			CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
+		}
+
+		_, err := usecase.CoinRepository.TransactionCoin(payloadMutationCoin)
+		if err != nil {
+			return helper.ResponseError("failed", err.Error(), 400)
+		}
+	}
+
+	return helper.ResponseSuccess("ok", nil, map[string]interface{}{"id": cancelTrx, "mutation_bank_id": mutationID}, 200)
 }

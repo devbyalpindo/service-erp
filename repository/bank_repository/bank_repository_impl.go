@@ -86,16 +86,16 @@ func (repository *BankRepositoryImpl) UpdateBalanceBank(bank *entity.Bank, types
 	return &bank.BankID, balance, nil
 }
 
-func (repository *BankRepositoryImpl) TransferToBank(idFrom string, balanceBankFrom float64, idBankTo string, balanceBankTo float64, ammount float64) (*string, error) {
+func (repository *BankRepositoryImpl) TransferToBank(idFrom string, balanceBankFrom float64, idBankTo string, balanceBankTo float64, ammount float64, adminFee float64, nameBankfrom string, nameBankTo string) (*string, error) {
 	bank := entity.Bank{}
 	mutationBank := []entity.MutationBank{
 		{
 			MutationBankID:    uuid.New().String(),
 			BankID:            idFrom,
 			Type:              "DEBET",
-			Ammount:           ammount,
+			Ammount:           ammount + adminFee,
 			LastBalance:       balanceBankFrom,
-			Description:       "Transfer ke bank lain",
+			Description:       "Transfer ke bank " + nameBankfrom,
 			IsTransactionBank: true,
 			CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
 		},
@@ -105,7 +105,7 @@ func (repository *BankRepositoryImpl) TransferToBank(idFrom string, balanceBankF
 			Type:              "CREDIT",
 			Ammount:           ammount,
 			LastBalance:       balanceBankTo,
-			Description:       "Menerima transfer dari bank lain",
+			Description:       "Menerima transfer dari bank " + nameBankTo,
 			IsTransactionBank: true,
 			CreatedAt:         time.Now().Format("2006-01-02 15:04:05"),
 		},

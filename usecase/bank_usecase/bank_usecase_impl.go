@@ -236,7 +236,7 @@ func (usecase *BankUsecaseImpl) TransferToBank(body dto.BankTransfer) dto.Respon
 		return helper.ResponseError("failed", err.Error(), 404)
 	}
 
-	transferBank, err := usecase.BankRepository.TransferToBank(bankFrom.BankID, bankFrom.Balance-(body.Balance+body.AdminFee), bankTo.BankID, bankTo.Balance+body.Balance, body.Balance)
+	transferBank, err := usecase.BankRepository.TransferToBank(bankFrom.BankID, bankFrom.Balance-(body.Balance+body.AdminFee), bankTo.BankID, bankTo.Balance+body.Balance, body.Balance, body.AdminFee, bankFrom.BankName+"-"+bankFrom.AccountNumber+" "+bankFrom.AccountName, bankTo.BankName+"-"+bankTo.AccountNumber+" "+bankTo.AccountName)
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
 		return helper.ResponseError("failed", err.Error(), 404)
 	}
